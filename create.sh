@@ -65,7 +65,7 @@ function container_create_gen_command(){
     ${socket_mount_string}
     -v ${code_mount_path}:/run/host${code_mount_path}:rslave
     -w /run/host${code_mount_path}
-    $image_name:latest
+    $image_name:latest"
 }
 function container_create_exec_command(){
     clear
