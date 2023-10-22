@@ -42,7 +42,7 @@ git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim &&
 git clone https://github.com/AstroNvim/user_example ~/.config/nvim/lua/user &&
 curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl &&
 chmod +x /usr/local/bin/kubectl &&
-curl -L https://gitlab.com/vmath3us/astrovim-podman/-/raw/main/zshrc -o /root/zshrc &&
+curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zshrc -o /root/zshrc &&
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &&
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &&
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting &&
