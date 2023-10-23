@@ -8,7 +8,7 @@ if [ $SECTYPE = "bare" ] ; then
         curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile -o Dockerfile
         $CONTAINER_ENGINE build -t devops-userspace-$CONTAINER_ENGINE .
         else
-        apk add curl zsh ; curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh
+        apk add zsh ; curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh
         fi'
 elif [ -z $SECTYPE ] || [ $SECTYPE != "bare" ] ; then
     if [ -z $CONTAINER_ENGINE ] ; then
