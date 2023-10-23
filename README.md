@@ -35,7 +35,7 @@ kubernetes:
 
     kubectl logs <pod-name>
 
-    kubectl exec --stdin --tty <name> -- /bin/zsh
+    kubectl exec --stdin --tty <pod-name> -- /bin/zsh
 
 
 shell configure:
