@@ -119,7 +119,7 @@ function show_help(){
             padrão=falso
 
     exemplo de comando completo:
-    create.sh -d -e podman -r -i devops-userspace-podman -n dev-on-container
+    create-box -d -e podman -r -i devops-userspace-podman -n dev-on-container
 
     gerará um container:
     1. que permite usar a container engine escolhida;
@@ -169,7 +169,6 @@ while :; do
             break
             ;;
         *)
-            help_invoc=1
             branding
             printf '\e[1;37m%s\e[m\n' "-h | --help para ajuda"
             break
