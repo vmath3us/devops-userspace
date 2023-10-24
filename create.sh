@@ -1,4 +1,15 @@
 #!/bin/bash
+function branding(){
+    printf '\e[1;37m%s\e[m\n' "
+    ###################################
+    #                                 #
+    #                                 #    
+    #           Create-Box            #
+    #                                 #
+    #                                 #
+    ###################################
+"
+}
 # rootless + dind implica em
 # crie/use o socket rootless dentro do container, de forma que novos containers também sejam
 # rootless, mas AO LADO do container pai (e não aninhados). Dessa forma, destruir o pai
@@ -153,10 +164,14 @@ while :; do
             ;;
         -h | --help)
             help_invoc=1
+            branding
             show_help
             break
             ;;
         *)
+            help_invoc=1
+            branding
+            printf '\e[1;37m%s\e[m\n' "-h | --help para ajuda"
             break
             ;;
     esac
