@@ -57,7 +57,8 @@ function podman_in_podman(){
     return
 }
 function container_create_gen_command(){
-    command_gen="$container_engine create -it
+    command_gen="
+    $container_engine create -it
     --security-opt label=disable
     --name $container_name
     --hostname $container_name
@@ -70,45 +71,62 @@ function container_create_gen_command(){
 function container_create_exec_command(){
     clear
     for i in {5..1}; do
-        printf "em $i segundos, será executado o comando abaixo, ctrl-c para cancelar"
-        printf "\n$command_gen\n"
+        printf '\e[1;37m%s\e[m\n' "em $i segundos, será executado o comando abaixo, ctrl-c para cancelar"
+        printf '\e[1;33m%s\e[m\n' "
+        $command_gen
+        "
         sleep 1
         clear
     done
     eval $command_gen
 }
 function container_entry_print_command(){
-    printf "iniciando $container_name...\n"
+    printf '\e[1;37m%s\e[m\n' "iniciando $container_name..."
     eval "$container_engine start $container_name"
-    printf "para entrar, execute\n\n$container_engine exec -it --detach-keys \"\" $container_name zsh%s\n\n"
+    printf '\e[1;32m%s\e[m\n' "para entrar, execute
+
+        $container_engine exec -it --detach-keys \"\" $container_name zsh
+
+"
 }
 function show_help(){
-    printf "
-    -n | --name: nome do container (obrigatório, só aceita - como separador)
+    printf '\e[1;37m%s\e[m\n' "
+    -n | --name : nome do container (obrigatório, só aceita - como separador)
  
-    -i | --image: nome da imagem base (obrigatório)
+    -i | --image : nome da imagem base (obrigatório)
 
-    --rootless : se é para usar o container engine rootless
+    -e | --engine : escolha entre podman e docker (padrão=docker)
+
+    -r | --rootless : se é para usar o container engine rootless
                 padrão=falso
                 (docker rootless não é tão usado quanto deveria)
                 https://docs.docker.com/engine/security/rootless/
 
-    --dind : se o socket do container engine deve ser remontado dentro do container
+    -d | --dind : se o socket do container engine deve ser remontado dentro do container
             (útil para usar o container engine sem ter que sair do ambiente, mas é
             um problema de segurança, especialmente em setups rootfull)
             padrão=falso
 
-    --help: Exibe essa mensagem%s\n"
+    exemplo de comando completo:
+    create.sh -d -e podman -r -i devops-userspace-podman -n dev-on-container
+
+    gerará um container:
+    1. que permite usar a container engine escolhida;
+    2. sendo essa engine o podman;
+    3. em modo rootless;
+    4. usando a imagem devops-userspace-podman;
+    5. sob o nome dev-on-container.
+
+    -h | --help: Exibe essa mensagem"
 }
 function main(){
-code_mount_path=$(readlink -f $PWD)
 while :; do
     case $1 in
-        --rootless)
+        --rootless | -r)
             rootless=1
             shift
             ;;
-        --dind)
+        --dind | -d)
             dind_setup=1
             shift
             ;;
@@ -119,7 +137,7 @@ while :; do
                 shift
             fi
             ;;
-        --engine)
+        --engine | -e)
             if [ -n "$2" ]; then
                 container_engine="$2"
                 shift
@@ -134,6 +152,7 @@ while :; do
             fi
             ;;
         -h | --help)
+            help_invoc=1
             show_help
             break
             ;;
@@ -142,7 +161,9 @@ while :; do
             ;;
     esac
 done
-    if [ -z $container_engine ] ; then container_engine="docker"; fi
+if [[ $help_invoc -ne 1 ]] ; then
+code_mount_path=$(readlink -f $PWD)
+    if [ -z $container_engine ] || [ $container_engine != "podman" ]; then container_engine="docker"; fi
     if [ -z $image_name ] ; then
         printf "imagem base nao selecionada, saindo"
         exit 1
@@ -155,10 +176,10 @@ done
         printf "rootless selecionado, porém executando como root, saindo"
         exit 1
     fi
-    #printf "$container_engine $container_name $image_name $rootless $dind"
     if [ ! -z $dind_setup ] ; then dind_generate_setup ; fi &&
     container_create_gen_command &&
     container_create_exec_command &&
     container_entry_print_command
+fi
 }
 main ${@}
