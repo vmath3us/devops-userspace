@@ -102,21 +102,27 @@ function container_entry_print_command(){
 }
 function show_help(){
     printf '\e[1;37m%s\e[m\n' "
-    -n | --name : nome do container (obrigatório, só aceita - como separador)
  
     -i | --image : nome da imagem base (obrigatório)
+                se não fornecido, será devops-userspace-<container_engine>
+
+    -n | --name : nome do container (obrigatório, só aceita - como separador)
+                se não fornecido, será devops-userspace-<container_engine>-ano-mes-dia--hora-min-sec
 
     -e | --engine : escolha entre podman e docker (padrão=docker)
+
 
     -r | --rootless : se é para usar o container engine rootless
                 padrão=falso
                 (docker rootless não é tão usado quanto deveria)
                 https://docs.docker.com/engine/security/rootless/
 
+
     -d | --dind : se o socket do container engine deve ser remontado dentro do container
             (útil para usar o container engine sem ter que sair do ambiente, mas é
             um problema de segurança, especialmente em setups rootfull)
             padrão=falso
+
 
     exemplo de comando completo:
     create-box -d -e podman -r -i devops-userspace-podman -n dev-on-container
@@ -131,69 +137,85 @@ function show_help(){
     -h | --help: Exibe essa mensagem"
 }
 function main(){
+passes=0
 while :; do
-    case $1 in
-        --rootless | -r)
-            rootless=1
-            shift
-            ;;
-        --dind | -d)
-            dind_setup=1
-            shift
-            ;;
-        --name | -n)
-            if [ -n "$2" ]; then
-                container_name="$2"
+    if [ $passes -le 20 ] ; then
+    let passes++
+        case $1 in
+            --rootless | -r)
+                rootless=1
                 shift
+                ;;
+            --dind | -d)
+                dind_setup=1
                 shift
-            fi
-            ;;
-        --engine | -e)
-            if [ -n "$2" ]; then
-                container_engine="$2"
-                shift
-                shift
-            fi
-            ;;
-        --image | -i)
-            if [ -n "$2" ]; then
-                image_name="$2"
-                shift
-                shift
-            fi
-            ;;
-        -h | --help)
-            help_invoc=1
-            branding
-            show_help
-            break
-            ;;
-        *)
-            branding
-            printf '\e[1;37m%s\e[m\n' "-h | --help para ajuda"
-            break
-            ;;
-    esac
+                ;;
+            --name | -n)
+                if [ -n "$2" ]; then
+                    container_name="$2"
+                    shift
+                    shift
+                fi
+                ;;
+            --engine | -e)
+                if [ -n "$2" ]; then
+                    container_engine="$2"
+                    shift
+                    shift
+                fi
+                ;;
+            --image | -i)
+                if [ -n "$2" ]; then
+                    image_name="$2"
+                    shift
+                    shift
+                fi
+                ;;
+            -h | --help)
+                help_invoc=1
+                branding
+                show_help
+                break
+                ;;
+            *)
+                if [ $passes -le 10 ] ; then
+                    help_invoc=0
+                else
+                    help_invoc=1
+                fi
+                break
+                ;;
+        esac
+    else
+        force_break=1
+        break
+    fi
 done
-if [[ $help_invoc -ne 1 ]] ; then
+if [ $help_invoc != 1 ] && [ $force_break != 1 ] ; then
 code_mount_path=$(readlink -f $PWD)
     if [ -z $container_engine ] || [ $container_engine != "podman" ]; then container_engine="docker"; fi
-    if [ -z $image_name ] ; then
-        printf "imagem base nao selecionada, saindo"
-        exit 1
-    fi
-    if [ -z $container_name ] ; then 
-        printf "nome do container não selecionado, saindo"
-        exit 1
-    fi
+    if [ -z $image_name ] ; then image_name="devops-userspace-$container_engine" ; fi
+    if [ -z $container_name ] ; then container_name="$image_name-$(date +%Y-%m-%d--%H-%M-%S)" ; fi
     if [ ! -z $rootless ] && [ $(id -g) == "0" ] ; then
-        printf "rootless selecionado, porém executando como root, saindo"
+        printf '\e[1;31m%s\e[m\n' "rootless selecionado, porém executando como root, saindo"
         exit 1
     fi
     if [ ! -z $dind_setup ] ; then dind_generate_setup ; fi &&
     container_create_gen_command &&
     container_create_exec_command &&
     container_entry_print_command
+else
+    if [ $force_break -eq 1 ] ; then
+        branding
+        printf '\e[1;31m%s\e[m\n' "
+        Erro de entrada desconhecido
+        -h para ajuda"
+        exit 1
+    else
+        exit 0
+    fi
 fi
 }
+force_break=0
+help_invoc=0
 main ${@}
