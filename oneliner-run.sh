@@ -24,5 +24,10 @@ ${socket_mount_string} \
 --env CONTAINER_ENGINE=${CONTAINER_ENGINE} \
 alpine:edge sh -uelic 'apk add --update curl $CONTAINER_ENGINE
     $CONTAINER_ENGINE build -t devops-userspace-$CONTAINER_ENGINE https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile'"
-curl -LO https://gitlab.com/vmath3us/devops-userspace/-/raw/main/create.sh
-printf '\e[1;32m%s\e[m\n\n\n' "install -m755 create.sh para seu PATH. Execute a partir da pasta alvo, -h para instruçoes"
+curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/create.sh -o create-box
+printf '\e[1;32m%s\e[m\n' "
+
+    sudo install -m755 create-box /usr/local/bin/.
+    Execute a partir da pasta alvo, -h para instruçoes
+
+"
