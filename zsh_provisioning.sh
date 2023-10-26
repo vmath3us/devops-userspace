@@ -39,6 +39,8 @@ apk add --update \
         docker \
         zsh-vcs \
         fd \
+        diffutils \
+        findutils \
         glab &&
 git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim &&
 git clone https://github.com/AstroNvim/user_example ~/.config/nvim/lua/user &&
