@@ -23,7 +23,7 @@ eval "$CONTAINER_ENGINE run \
 ${socket_mount_string} \
 --env CONTAINER_ENGINE=${CONTAINER_ENGINE} \
 alpine:edge sh -uelic 'apk add --update curl $CONTAINER_ENGINE
-    $CONTAINER_ENGINE build -t devops-userspace-$CONTAINER_ENGINE https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile'" &&
+    $CONTAINER_ENGINE build --no-cache -t devops-userspace-$CONTAINER_ENGINE https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile'" &&
 curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/create.sh -o create-box &&
 printf '\e[1;32m%s\e[m\n' "
 
