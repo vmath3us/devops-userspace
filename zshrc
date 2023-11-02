@@ -55,6 +55,7 @@ alias htmldump="lynx --display_charset=utf-8 -force_html -dump"
 alias ip="ip -br -c a"
 alias paste='curl -F 'file=@-' 0x0.st'
 alias moment="date +%Y-%m-%d--%H-%M-%S"
+alias fd="fd|fzf"
 #########################################
 #                                       #
 #               force color             #
