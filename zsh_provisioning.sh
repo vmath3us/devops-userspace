@@ -35,12 +35,14 @@ apk add --update \
         ripgrep \
         alpine-sdk \
         github-cli \
+        git-lfs \
         podman \
         docker \
         zsh-vcs \
         fd \
         diffutils \
         findutils \
+        ranger \
         glab &&
 git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim &&
 git clone https://github.com/AstroNvim/user_example ~/.config/nvim/lua/user &&
