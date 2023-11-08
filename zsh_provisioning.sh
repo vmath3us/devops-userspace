@@ -43,6 +43,7 @@ apk add --update \
         diffutils \
         findutils \
         ranger \
+        pv \
         glab &&
 git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim &&
 git clone https://github.com/AstroNvim/user_example ~/.config/nvim/lua/user &&
