@@ -1,4 +1,7 @@
 #!/bin/sh
+if [ -z $BUILD_PROFILE ] ; then
+    BUILD_PROFILE="full"
+fi
 if [ -z $CONTAINER_ENGINE ] ; then
         CONTAINER_ENGINE="docker"
             if [ -z $ROOTLESS ] ; then
@@ -23,7 +26,7 @@ eval "$CONTAINER_ENGINE run \
 ${socket_mount_string} \
 --env CONTAINER_ENGINE=${CONTAINER_ENGINE} \
 alpine:edge sh -uelic 'apk add --update curl $CONTAINER_ENGINE
-    $CONTAINER_ENGINE build --no-cache -t devops-userspace-$CONTAINER_ENGINE https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile'" &&
+$CONTAINER_ENGINE build --build-arg PROFILE=${BUILD_PROFILE} --no-cache -t devops-userspace-$CONTAINER_ENGINE-$BUILD_PROFILE https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile'" &&
 curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/create.sh -o create-box &&
 printf '\e[1;32m%s\e[m\n' "
 
