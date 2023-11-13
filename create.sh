@@ -104,7 +104,7 @@ function show_help(){
     printf '\e[1;37m%s\e[m\n' "
  
     -i | --image : nome da imagem base (obrigatório)
-                se não fornecido, será devops-userspace-<container_engine>
+                se não fornecido, será devops-userspace-<container_engine>-full
 
     -n | --name : nome do container (obrigatório, só aceita - como separador)
                 se não fornecido, será devops-userspace-<container_engine>-ano-mes-dia--hora-min-sec
@@ -194,7 +194,7 @@ done
 if [ $help_invoc != 1 ] && [ $force_break != 1 ] ; then
 code_mount_path=$(readlink -f $PWD)
     if [ -z $container_engine ] || [ $container_engine != "podman" ]; then container_engine="docker"; fi
-    if [ -z $image_name ] ; then image_name="devops-userspace-$container_engine" ; fi
+    if [ -z $image_name ] ; then image_name="devops-userspace-$container_engine-full" ; fi
     if [ -z $container_name ] ; then container_name="$image_name-$(date +%Y-%m-%d--%H-%M-%S)" ; fi
     if [ ! -z $rootless ] && [ $(id -g) == "0" ] ; then
         printf '\e[1;31m%s\e[m\n' "rootless selecionado, porém executando como root, saindo"
