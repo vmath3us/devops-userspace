@@ -41,3 +41,5 @@ kubernetes:
 shell configure:
 
     p10k configure
+
+Read zsh_provisioning.sh to profiles
