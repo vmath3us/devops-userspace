@@ -15,6 +15,7 @@ function minimal_userspace()
             libarchive-tools \
             openssh \
             gpg \
+            gpg-agent \
             zsh-vcs \
             ripgrep \
             icu-data-full \
