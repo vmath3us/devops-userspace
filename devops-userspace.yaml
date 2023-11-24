@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidecar-devops-userspace-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-devops-userspace-app
+  template:
+    metadata:
+      labels:
+        app: sidecar-devops-userspace-app
+    spec:
+      containers:
+      - name: sidecar-alpine
+        image: alpine:edge
+        command: ["/bin/sh"]
+        args:
+          - '-uelic'
+          - >-
+            apk add curl zsh ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh ; sleep infinity

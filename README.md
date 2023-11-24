@@ -29,14 +29,24 @@ directly on podman/docker container (rootless or rootfull):
 
 **Support stop/kill -> start -> exec**.
 
+
+
 kubernetes:
 
-    kubectl run --image=alpine:edge <pod-name> -- /bin/sh -uelic "apk add curl zsh ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh ; sleep infinity"
+    kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/devops-userspace.yaml
 
-    kubectl logs <pod-name>
+    kubectl logs -f <pod-name>
 
     kubectl exec --stdin --tty <pod-name> -- /bin/zsh
 
+
+or:
+
+    kubectl run --image=alpine:edge <pod-name> -- /bin/sh -uelic "apk add curl zsh ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh ; sleep infinity"
+
+    kubectl logs -f <pod-name>
+
+    kubectl exec --stdin --tty <pod-name> -- /bin/zsh
 
 shell configure:
 
