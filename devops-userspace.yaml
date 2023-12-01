@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sidecar-devops-userspace-deployment
+  name: devops-userspace-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sidecar-devops-userspace-app
+      app: devops-userspace-app
   template:
     metadata:
       labels:
-        app: sidecar-devops-userspace-app
+        app: devops-userspace-app
     spec:
       containers:
-      - name: sidecar-alpine
+      - name: devops-userspace-container
         image: alpine:edge
         command: ["/bin/sh"]
         args:
