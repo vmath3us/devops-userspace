@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: devops-userspace-job
+spec:
+  suspend: true
+  template:
+    spec:
+      containers:
+      - name: devops-userspace-container
+        image: alpine:edge
+        command: ['sh']
+        args:
+          - '-c'
+          - >-
+            apk add curl zsh ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh ; sleep infinity
+      restartPolicy: OnFailure

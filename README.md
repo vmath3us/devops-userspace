@@ -33,12 +33,21 @@ directly on podman/docker container (rootless or rootfull):
 
 kubernetes:
 
-    kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/devops-userspace.yaml
+    kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/deployment-devops-userspace.yaml
 
     kubectl logs -f <pod-name>
 
     kubectl exec --stdin --tty <pod-name> -- /bin/zsh
 
+or:
+
+    kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/job-devops-userspace.yaml
+
+    kubectl patch jobs -n devops-userspace-job -p '{"spec" : {"suspend" : false }}'
+
+    kubectl logs -f <pod-name>
+
+    kubectl exec --stdin --tty <pod-name> -- /bin/zsh
 
 or:
 
