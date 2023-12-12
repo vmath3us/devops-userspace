@@ -61,7 +61,7 @@ function podman_in_podman(){
         eval "podman system service unix:/run/podman.sock --time 0 &"
         socket_origin="-v /run/podman.sock"
     else
-        eval "podman system service unix:/run/user/$(id -g)/podman/podman.sock --time=0 &"
+        eval "mkdir -p /run/user/$(id -g)/podman; podman system service unix:/run/user/$(id -g)/podman/podman.sock --time=0 &"
         socket_origin="-v /run/user/$(id -g)/podman/podman.sock"
     fi
     socket_mount_string="${socket_origin}:/var/run/podman.sock:Z --env CONTAINER_HOST=unix:/var/run/podman.sock"
