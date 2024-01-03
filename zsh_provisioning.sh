@@ -73,14 +73,14 @@ function shell()
         apk add bash git neovim ripgrep
         MINIMAL_PROVISIONED="downstream"
     fi
-    curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zshrc -o /root/zshrc &&
+    curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zshrc -o ~/zshrc &&
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &&
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &&
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting &&
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf &&
-    /root/.fzf/install --completion --key-bindings --update-rc &&
+    ~/.fzf/install --completion --key-bindings --update-rc &&
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k &&
-    cp /root/zshrc ~/.zshrc
+    cp ~/zshrc ~/.zshrc
     return
 }
 #--[no-]key-bindings  Enable/disable key bindings (CTRL-T, CTRL-R, ALT-C)
