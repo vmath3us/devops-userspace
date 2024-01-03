@@ -85,6 +85,16 @@ function shell()
     cp ~/zshrc ~/.zshrc
     # sed -i "s|/root|$HOME|g" .zshrc
     # exec zsh
+    ##### exemplo #######
+    # podman run \
+    # -v $PWD:$PWD:Z \
+    # -w $PWD \
+    # -dit \
+    # --name debian-shell \
+    # --rm \
+    # debian:stable-slim sh -uelic 'apt update ; 
+    # apt install -y git bash zsh curl ; 
+    # curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | MINIMAL_PROVISIONED=1 PROFILE=shell zsh ; sed -i "s|/root|$HOME|g" $HOME/.zshrc; sleep infinity'
     return
 }
 #--[no-]key-bindings  Enable/disable key bindings (CTRL-T, CTRL-R, ALT-C)
