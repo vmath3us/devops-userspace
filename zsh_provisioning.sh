@@ -73,6 +73,8 @@ function shell()
         apk add bash git neovim ripgrep
         MINIMAL_PROVISIONED="downstream"
     fi
+    # apt/zypper/dnf/any install git bash zsh curl
+    # MINIMAL_PROVISIONED=1 PROFILE=shell zsh zsh_provisioning.sh
     curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zshrc -o ~/zshrc &&
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &&
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &&
