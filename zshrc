@@ -56,6 +56,7 @@ alias ip="ip -br -c a"
 alias paste='curl -F 'file=@-' 0x0.st'
 alias moment="date +%Y-%m-%d--%H-%M-%S"
 alias fd="fd|fzf"
+alias speedtest="curl -fSL https://raw.githubusercontent.com/sivel/speedtest-cli/22210ca35228f0bbcef75a7c14587c4ecb875ab4/speedtest.py | python3"
 #########################################
 #                                       #
 #               force color             #
