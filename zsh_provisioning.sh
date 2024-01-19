@@ -21,6 +21,7 @@ function minimal_userspace()
             icu-data-full \
             bat \
             tree \
+            bind-tools \
             fd
     MINIMAL_PROVISIONED="true"
     return
