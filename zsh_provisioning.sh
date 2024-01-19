@@ -84,8 +84,8 @@ function shell()
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf &&
     ~/.fzf/install --completion --key-bindings --update-rc &&
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k &&
-    cp ~/zshrc ~/.zshrc
-    # sed -i "s|/root|$HOME|g" .zshrc
+    cp ~/zshrc ~/.zshrc &&
+        if [ $(whoami) != "root" ] ; then ; sed -i "s|/root|$HOME|g" .zshrc ; fi
     # exec zsh
     ##### exemplo #######
     # podman run \
