@@ -40,6 +40,7 @@ function large_userspace()
             git-lfs \
             podman \
             docker \
+            docker-compose \
             zsh-vcs \
             diffutils \
             findutils \
