@@ -65,6 +65,12 @@ alias speedtest="curl -fSL https://raw.githubusercontent.com/sivel/speedtest-cli
 export COLORTERM=truecolor
 export TERM=xterm-256color
 #########################################
+#                                       #
+#               force locale            #
+#                                       #    
+#########################################
+if [ -e /etc/profile.d/locale.sh ] ; then source /etc/profile.d/locale.sh ; fi
+#########################################
 export MANPAGER="nvim +Man!" 
 export EDITOR="nvim"
 export FZF_BASE=/root/fzf/shell
