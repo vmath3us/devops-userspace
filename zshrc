@@ -93,6 +93,7 @@ for i in docker podman helm kubectl ; do
         source <($i completion zsh)
     fi
 done
+autoload -U compinit; compinit
 alias k=kubectl
 upregex(){
 
