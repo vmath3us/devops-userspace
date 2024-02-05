@@ -27,6 +27,13 @@ function minimal_userspace()
             tree \
             bind-tools \
             fd
+cat >> /root/.tmux.conf <<EOF
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+EOF
+
     MINIMAL_PROVISIONED="true"
     return
 }
