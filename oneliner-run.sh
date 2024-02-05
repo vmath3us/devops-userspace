@@ -25,7 +25,7 @@ eval "$CONTAINER_ENGINE run \
 --security-opt label=disable \
 ${socket_mount_string} \
 --env CONTAINER_ENGINE=${CONTAINER_ENGINE} \
-alpine:edge sh -uelic 'apk add --update curl $CONTAINER_ENGINE
+alpine:latest sh -uelic 'apk add --update curl $CONTAINER_ENGINE
 $CONTAINER_ENGINE build --no-cache --build-arg PROFILE=${BUILD_PROFILE} -t devops-userspace-$CONTAINER_ENGINE-$BUILD_PROFILE https://gitlab.com/vmath3us/devops-userspace/-/raw/main/Dockerfile'" &&
 curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/create.sh -o create-box &&
 printf '\e[1;32m%s\e[m\n' "
