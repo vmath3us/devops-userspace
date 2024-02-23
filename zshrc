@@ -95,6 +95,10 @@ for i in docker podman helm kubectl ; do
 done
 autoload -U compinit; compinit
 alias k=kubectl
+cclock () {
+	curl -v https://google.com 2>&1 | rg '< date'
+	date
+}
 upregex(){
 
 printf "\n\"mount| sed -e \\\"/[A-Z]/d\\\" -e \\\"s/.*lower.*upperdir=//g\\\" -e \\\"s/,work.*//g\\\" -e '1\\\!d'\"%s\n\n"
