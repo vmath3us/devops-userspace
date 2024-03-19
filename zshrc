@@ -104,4 +104,8 @@ upregex(){
 printf "\n\"mount| sed -e \\\"/[A-Z]/d\\\" -e \\\"s/.*lower.*upperdir=//g\\\" -e \\\"s/,work.*//g\\\" -e '1\\\!d'\"%s\n\n"
 
 }
+gpg-sym-upload()
+{
+gpg --output - --armor --cipher-algo AES256 --symmetric ${@} | base32 | paste
+}
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
