@@ -67,4 +67,4 @@ Read zsh_provisioning.sh to profiles
 ## SHELL ONLY
 ubuntu/debian:
 
-    curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/bare-metal-ubuntu-zsh-shell.sh | sh 
+    curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/bare-metal-ubuntu-zsh-shell.sh | bash 
