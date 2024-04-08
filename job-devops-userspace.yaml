@@ -9,6 +9,8 @@ spec:
       containers:
       - name: devops-userspace-container
         image: alpine:edge
+        imagePullPolicy: Always
+        workingDir: /root
         command: ['sh']
         args:
           - '-c'
