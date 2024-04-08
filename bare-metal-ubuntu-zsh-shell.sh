@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ root = "root" ] ; then
+if [ $(whoami) = "root" ] ; then
 	mkdir -pv /var/lib/root-save/{work,upper} &&
 	if ! mountpoint /root ; then
 	mount -t overlay overlay -o lowerdir=/root,upperdir=/var/lib/root-save/upper/,workdir=/var/lib/root-save/work/ /root
