@@ -77,8 +77,7 @@ function editor()
             python3 \
             go \
             alpine-sdk --update &&
-git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim &&
-git clone https://github.com/AstroNvim/template ~/.config/nvim/lua/user
+git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim
     return
 }
 function shell()
