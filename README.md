@@ -62,3 +62,9 @@ shell configure:
     p10k configure
 
 Read zsh_provisioning.sh to profiles
+
+
+## SHELL ONLY
+ubuntu/debian:
+
+    curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/base-metal-ubuntu-zsh-shell.sh | sh 
