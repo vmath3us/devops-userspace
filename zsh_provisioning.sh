@@ -44,7 +44,7 @@ tar \\
 --exclude=/root/.config/nvim \\
 --exclude=/root/.fzf \\
 -I 'zstd -T0 -v --fast -c' \\
--cpf /save-root.tar.zst /root && base32 /save-root.tar.zst
+-cpf /save-root.tar.zst /root && cat /save-root.tar.zst
 EOF
 chmod +x /usr/local/bin/tarballroot
 
