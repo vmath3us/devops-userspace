@@ -12,6 +12,7 @@ function minimal_userspace()
             htop \
             tar \
             zstd \
+            coreutils \
             gzip \
             lz4 \
             lzo \
@@ -33,6 +34,19 @@ bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
 EOF
+cat >> /usr/local/bin/tarballroot <<EOF
+#!/bin/bash
+tar \
+--exclude=/root/.cache \
+--exclude=/root/.gnupg \
+--exclude=/root/.local \
+--exclude=/root/.oh-my-zsh \
+--exclude=/root/.config/nvim \
+--exclude=/root/.fzf \
+-I 'zstd -T0 -v --fast -c' \
+-cpf /save-root.tar.zst /root && base32 /save-root.tar.zst
+EOF
+chmod +x /usr/local/bin/tarballroot
 
     MINIMAL_PROVISIONED="true"
     return
