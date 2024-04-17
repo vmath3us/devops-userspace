@@ -4,6 +4,7 @@ function minimal_userspace()
     echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh &&
     echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
     apk add --update \
+            shadow
             tmux \
             musl-locales \
             git \
@@ -47,6 +48,7 @@ tar \\
 -cpf /save-root.tar.zst /root && cat /save-root.tar.zst
 EOF
 chmod +x /usr/local/bin/tarballroot
+usermod -s /bin/zsh root
 
     MINIMAL_PROVISIONED="true"
     return
