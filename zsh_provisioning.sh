@@ -96,7 +96,7 @@ git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim
 }
 function shell()
 {
-    if [ -z $MINIMAL_PROVISIONED ] || [ $MININAL_PROVISIONED == "downstream" ] ; then
+    if [ -z $MINIMAL_PROVISIONED ] || [[ $MINIMAL_PROVISIONED == "downstream" ]] ; then
         apk add bash git neovim ripgrep shadow
         chsh -s /bin/zsh root
         MINIMAL_PROVISIONED="downstream"
