@@ -4,7 +4,6 @@ function minimal_userspace()
     echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh &&
     echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
     apk add --update \
-            shadow
             tmux \
             musl-locales \
             git \
@@ -48,7 +47,6 @@ tar \\
 -cpf /save-root.tar.zst /root && cat /save-root.tar.zst
 EOF
 chmod +x /usr/local/bin/tarballroot
-chsh -s /bin/zsh root
 
     MINIMAL_PROVISIONED="true"
     return
@@ -99,9 +97,11 @@ git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim
 function shell()
 {
     if [ -z $MINIMAL_PROVISIONED ] ; then
-        apk add bash git neovim ripgrep
+        apk add bash git neovim ripgrep shadow
+        chsh -s /bin/zsh root
         MINIMAL_PROVISIONED="downstream"
     fi
+
     # apt/zypper/dnf/any install git bash zsh curl
     # MINIMAL_PROVISIONED=1 PROFILE=shell zsh zsh_provisioning.sh
     curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zshrc -o ~/zshrc &&
