@@ -48,7 +48,7 @@ tar \\
 -cpf /save-root.tar.zst /root && cat /save-root.tar.zst
 EOF
 chmod +x /usr/local/bin/tarballroot
-usermod -s /bin/zsh root
+chsh -s /bin/zsh root
 
     MINIMAL_PROVISIONED="true"
     return
