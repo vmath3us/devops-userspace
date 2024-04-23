@@ -29,10 +29,14 @@ function minimal_userspace()
             bind-tools \
             fd
 cat >> /root/.tmux.conf <<EOF
+set -g prefix C-d
+bind = split-window -h
+bind - split-window -v
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
+bind a send-prefix
 EOF
 cat >> /usr/local/bin/tarballroot <<EOF
 #!/bin/bash

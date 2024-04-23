@@ -47,6 +47,7 @@ bindkey -M viins 'jk' vi-cmd-mode
 #####################################-general-#######################################
 alias c="clear"
 alias edit="nvim"
+alias e="exit"
 alias top="htop"
 alias vim="nvim"
 alias dhere="curl -ZfsSLOC -"
