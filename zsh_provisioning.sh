@@ -29,14 +29,21 @@ function minimal_userspace()
             bind-tools \
             fd
 cat >> /root/.tmux.conf <<EOF
-set -g prefix C-d
+set-window-option -g mode-keys vi
+set-option -g history-limit 3000000
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+set -g pane-border-status top
 bind = split-window -h
 bind - split-window -v
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
-bind a send-prefix
+bind-key -n C-h resize-pane -L
+bind-key -n C-j resize-pane -D
+bind-key -n C-k resize-pane -U
+bind-key -n C-l resize-pane -R
 EOF
 cat >> /usr/local/bin/tarballroot <<EOF
 #!/bin/bash
