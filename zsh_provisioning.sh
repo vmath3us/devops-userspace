@@ -186,9 +186,10 @@ nmap op o<Esc>p
 nmap oi O<Esc>j
 nmap oo A<CR>
 nmap tw :terminal
-map bw <Esc> :w <CR> <Esc> :bw <CR>
-map bq <Esc> :bdelete! <CR>
-map bb <Esc> :Buffers <CR
+nmap bw :w :bw <CR>
+nmap bq :bdelete! <CR>
+nmap bn :bN <CR>
+nmap bp :bp <CR>
 EOF
     return
 }
