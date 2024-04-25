@@ -126,6 +126,7 @@ function tmux_heredoc()
 {
 cat >> /root/.tmux.conf <<EOF
 set-window-option -g mode-keys vi
+set -g prefix C-w
 set-option -g history-limit 3000000
 set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
