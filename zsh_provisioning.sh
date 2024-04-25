@@ -4,6 +4,8 @@ function minimal_userspace()
     echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh &&
     echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
     apk add --update \
+            alpine-conf \
+            shadow \
             tmux \
             musl-locales \
             git \
@@ -28,37 +30,10 @@ function minimal_userspace()
             tree \
             bind-tools \
             fd
-cat >> /root/.tmux.conf <<EOF
-set-window-option -g mode-keys vi
-set-option -g history-limit 3000000
-set -g default-terminal "tmux-256color"
-set -ga terminal-overrides ",*256col*:Tc"
-set -g pane-border-status top
-bind = split-window -h
-bind - split-window -v
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-bind-key -n C-h resize-pane -L
-bind-key -n C-j resize-pane -D
-bind-key -n C-k resize-pane -U
-bind-key -n C-l resize-pane -R
-EOF
-cat >> /usr/local/bin/tarballroot <<EOF
-#!/bin/bash
-tar \\
---exclude=/root/.cache \\
---exclude=/root/.gnupg \\
---exclude=/root/.local \\
---exclude=/root/.oh-my-zsh \\
---exclude=/root/.config/nvim \\
---exclude=/root/.fzf \\
--I 'zstd -T0 -v --fast -c' \\
--cpf /save-root.tar.zst /root && cat /save-root.tar.zst
-EOF
-chmod +x /usr/local/bin/tarballroot
-
+    chsh -s /bin/zsh root
+    setup-timezone America/Sao_Paulo
+    auxiliar_scritps_create
+    tmux_heredoc
     MINIMAL_PROVISIONED="true"
     return
 }
@@ -91,7 +66,10 @@ chmod +x /usr/local/bin/kubectl
 function editor()
 {
     if [ -z $MINIMAL_PROVISIONED ] ; then
-        apk add bash git neovim ripgrep
+        apk add bash git neovim fd ripgrep bat tmux shadow
+        chsh -s /bin/zsh root
+        tmux_heredoc
+        auxiliar_scritps_create
         MINIMAL_PROVISIONED="downstream"
     fi
     apk add lua \
@@ -107,9 +85,13 @@ git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim
 }
 function shell()
 {
-    if [ -z $MINIMAL_PROVISIONED ] || [[ $MINIMAL_PROVISIONED == "downstream" ]] || [[ $MINIMAL_PROVISIONED == "true" ]]; then
-        apk add bash git neovim ripgrep shadow
+    if [ -z $MINIMAL_PROVISIONED ] ; then
+        apk add bash git neovim fd ripgrep bat tmux shadow
         chsh -s /bin/zsh root
+        mkdir -p /root/.config/nvim
+        neovim_heredoc
+        tmux_heredoc
+        auxiliar_scritps_create
         MINIMAL_PROVISIONED="downstream"
     fi
 
@@ -140,6 +122,94 @@ function shell()
 #--[no-]key-bindings  Enable/disable key bindings (CTRL-T, CTRL-R, ALT-C)
 #    --[no-]completion    Enable/disable fuzzy completion (bash & zsh)
 #    --[no-]update-rc     Whether or not to update shell configuration files
+function tmux_heredoc()
+{
+cat >> /root/.tmux.conf <<EOF
+set-window-option -g mode-keys vi
+set-option -g history-limit 3000000
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+set -g pane-border-status top
+bind = split-window -h
+bind - split-window -v
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+bind-key -n C-h resize-pane -L
+bind-key -n C-j resize-pane -D
+bind-key -n C-k resize-pane -U
+bind-key -n C-l resize-pane -R
+EOF
+    return
+}
+function neovim_heredoc(){
+cat > /root/.config/nvim/init.vim <<EOF
+syntax on
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set smarttab
+set smartindent
+set hidden
+set cursorline
+set number relativenumber
+set incsearch
+set ignorecase
+set smartcase
+set scrolloff=8
+set signcolumn=yes
+set cmdheight=2
+set updatetime=100
+set clipboard=unnamedplus
+set encoding=utf-8
+set splitbelow
+set autoread
+set mouse=a
+filetype on
+filetype plugin on
+filetype indent on
+map <C-j> <C-w>j
+map <C-h> <C-w>h
+map <C-k> <C-w>k
+map <C-l> <C-w>l
+map <C-t> :tabNext<CR>
+nmap qq :q
+nmap qf :q! <CR>
+nmap wq :wq <CR>
+nmap ss :%s/
+nmap ww :w <CR>
+nmap tt :tabnew
+nmap tv :vsplit
+nmap op o<Esc>p
+nmap oi O<Esc>j
+nmap oo A<CR>
+nmap tw :terminal
+map bw <Esc> :w <CR> <Esc> :bw <CR>
+map bq <Esc> :bdelete! <CR>
+map bb <Esc> :Buffers <CR
+EOF
+    return
+}
+function auxiliar_scritps_create()
+{
+cat >> /usr/local/bin/tarballroot <<EOF
+#!/bin/bash
+tar \\
+--exclude=/root/.cache \\
+--exclude=/root/.gnupg \\
+--exclude=/root/.local \\
+--exclude=/root/.oh-my-zsh \\
+--exclude=/root/.config/nvim \\
+--exclude=/root/.fzf \\
+-I 'zstd -T0 -v --fast -c' \\
+-cpf /save-root.tar.zst /root && cat /save-root.tar.zst
+EOF
+chmod +x /usr/local/bin/tarballroot
+    return
+}
+
 function main()
 {
     if [ $PROFILE = "full" ] ; then

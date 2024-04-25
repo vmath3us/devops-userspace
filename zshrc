@@ -48,6 +48,7 @@ bindkey -M viins 'jk' vi-cmd-mode
 alias c="clear"
 alias edit="nvim"
 alias e="exit"
+alias td="tmux detach"
 alias top="htop"
 alias vim="nvim"
 alias dhere="curl -ZfsSLOC -"
