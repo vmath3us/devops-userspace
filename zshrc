@@ -110,4 +110,34 @@ gpg-sym-upload()
 {
 gpg --output - --armor --cipher-algo AES256 --symmetric ${@} | base32 | paste
 }
+stmux()
+{
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] ; then
+     echo "parametro nulo, precisa de usuário, destino, e nome da sessão, nessa ordem"
+     exit 1
+else
+ssh "$1"@"$2" -t "if [ \$(which tmux) ] ; then
+cat > \$HOME/.tmux.conf <<EOF
+set-window-option -g mode-keys vi
+set-option -g history-limit 3000000
+set -g default-terminal \"tmux-256color\"
+set -ga terminal-overrides \",*256col*:Tc\"
+set -g pane-border-status top
+bind = split-window -h
+bind - split-window -v
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+bind-key -n C-h resize-pane -L
+bind-key -n C-j resize-pane -D
+bind-key -n C-k resize-pane -U
+bind-key -n C-l resize-pane -R
+EOF
+TERM=xterm-256color tmux -2 -u new-session -A -s "${3}"
+else
+exec bash
+fi"
+fi
+}
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
