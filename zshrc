@@ -129,10 +129,10 @@ bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
-bind-key -n C-h resize-pane -L
-bind-key -n C-j resize-pane -D
-bind-key -n C-k resize-pane -U
-bind-key -n C-l resize-pane -R
+bind-key -n M-h resize-pane -L
+bind-key -n M-j resize-pane -D
+bind-key -n M-k resize-pane -U
+bind-key -n M-l resize-pane -R
 EOF
 TERM=xterm-256color tmux -2 -u new-session -A -s "${3}"
 else
