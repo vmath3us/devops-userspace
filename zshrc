@@ -117,24 +117,26 @@ if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] ; then
      exit 1
 else
 ssh "$1"@"$2" -t "if [ \$(which tmux) ] ; then
-cat > \$HOME/.tmux.conf <<EOF
+cat > /tmp/.vmath3us.tmux.conf <<EOF
 set-window-option -g mode-keys vi
 set-option -g history-limit 3000000
 set -g default-terminal \"tmux-256color\"
 set -ga terminal-overrides \",*256col*:Tc\"
 set -g pane-border-status top
+set -g pane-border-style fg=yellow
+set -g pane-active-border-style \"bg=default fg=red\"
 bind = split-window -h
 bind - split-window -v
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
-bind-key -n M-h resize-pane -L
-bind-key -n M-j resize-pane -D
-bind-key -n M-k resize-pane -U
-bind-key -n M-l resize-pane -R
+bind-key -n M-u resize-pane -L
+bind-key -n M-i resize-pane -D
+bind-key -n M-o resize-pane -U
+bind-key -n M-p resize-pane -R
 EOF
-TERM=xterm-256color tmux -2 -u new-session -A -s "${3}"
+TERM=xterm-256color tmux -f /tmp/.vmath3us.tmux.conf -2 -u new-session -A -s "${3}"
 else
 exec bash
 fi"
