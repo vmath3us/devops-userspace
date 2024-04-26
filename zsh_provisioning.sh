@@ -131,6 +131,8 @@ set-option -g history-limit 3000000
 set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
 set -g pane-border-status top
+set -g pane-border-style fg=white
+set -g pane-active-border-style "bg=default fg=green"
 bind = split-window -h
 bind - split-window -v
 bind h select-pane -L
