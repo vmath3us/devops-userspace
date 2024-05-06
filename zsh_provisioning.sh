@@ -124,30 +124,35 @@ function shell()
 #    --[no-]update-rc     Whether or not to update shell configuration files
 function tmux_heredoc()
 {
-cat >> /root/.tmux.conf <<EOF
+    mkdir -pv ~/.config/tmux
+cat >> ~/.config/tmux/tmux.conf <<EOF
 set-window-option -g mode-keys vi
 set -g prefix C-w
 set-option -g history-limit 3000000
+set-option -g repeat-time 2000
 set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
 set -g pane-border-status top
-set -g pane-border-style fg=white
-set -g pane-active-border-style "bg=default fg=green"
-bind = split-window -h
-bind - split-window -v
+set -g pane-border-style fg=cyan
+set -g pane-active-border-style "bg=black fg=pink"
+set -g status-style fg=black,bg=yellow
+bind = split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind c new-window -c "#{pane_current_path}"
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
-bind-key -n C-h resize-pane -L
-bind-key -n C-j resize-pane -D
-bind-key -n C-k resize-pane -U
-bind-key -n C-l resize-pane -R
+bind u resize-pane -L
+bind i resize-pane -D
+bind o resize-pane -U
+bind p resize-pane -R
 EOF
     return
 }
 function neovim_heredoc(){
-cat > /root/.config/nvim/init.vim <<EOF
+   mkdir -pv ~/.config/nvim 
+cat > ~/.config/nvim/init.vim <<EOF
 syntax on
 set tabstop=4
 set softtabstop=4
@@ -231,6 +236,15 @@ function main()
     elif [ $PROFILE = "shell" ] ; then
         shell
     fi
+    if [ ! -z $HEREDOCS ] ; then
+        tmux_heredoc
+        neovim_heredoc
+    fi
 }
+if [ ! -z $ONLY_HEREDOCS ] ; then
+    tmux_heredoc
+    neovim_heredoc
+    exit
+fi
 if [ -z $PROFILE ] ; then PROFILE="full" ; fi
 main
