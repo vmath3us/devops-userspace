@@ -45,6 +45,7 @@ bindkey -M viins 'jk' vi-cmd-mode
 #			alias session
 #
 #####################################-general-#######################################
+alias gitmux="tmux new-session -d -s autocommiter -c "$(pwd)" "auto-commiter""
 alias c="clear"
 alias edit="nvim"
 alias e="exit"

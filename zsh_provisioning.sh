@@ -4,6 +4,7 @@ function minimal_userspace()
     echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh &&
     echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
     apk add --update \
+            inotify-tools \
             alpine-conf \
             shadow \
             tmux \
@@ -201,9 +202,9 @@ nmap bp :bp <CR>
 EOF
     return
 }
-function auxiliar_scritps_create()
+function auxiliar_scripts_create()
 {
-cat >> /usr/local/bin/tarballroot <<EOF
+cat > /usr/local/bin/tarballroot <<EOF
 #!/bin/bash
 tar \\
 --exclude=/root/.cache \\
@@ -216,6 +217,23 @@ tar \\
 -cpf /save-root.tar.zst /root && cat /save-root.tar.zst
 EOF
 chmod +x /usr/local/bin/tarballroot
+cat > /usr/local/bin/auto-commiter <<EOF
+#!/bin/bash
+monitor_changes() {
+    absolute_path=\$(realpath "\$PWD")
+    delta=\$(git diff --no-color)
+    datetime=\$(date +"%Y-%m-%d--%H-%M-%S")
+    commit_message="\$absolute_path \$datetime"\$'\n\n'"\$delta"
+    git add .
+    git commit -m "\$commit_message"
+}
+git checkout -b save-wip-\$(date +"%Y-%m-%d--%H-%M-%S")
+while true ; do
+    inotifywait -qq -r -e modify -e create -e delete \$PWD
+    monitor_changes
+done
+EOF
+chmod +x /usr/local/bin/auto-commiter
     return
 }
 
