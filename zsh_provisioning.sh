@@ -33,7 +33,7 @@ function minimal_userspace()
             fd
     chsh -s /bin/zsh root
     setup-timezone America/Sao_Paulo
-    auxiliar_scritps_create
+    auxiliar_scripts_create
     tmux_heredoc
     MINIMAL_PROVISIONED="true"
     return
@@ -70,7 +70,7 @@ function editor()
         apk add bash git neovim fd ripgrep bat tmux shadow
         chsh -s /bin/zsh root
         tmux_heredoc
-        auxiliar_scritps_create
+        auxiliar_scripts_create
         MINIMAL_PROVISIONED="downstream"
     fi
     apk add lua \
@@ -92,7 +92,7 @@ function shell()
         mkdir -p /root/.config/nvim
         neovim_heredoc
         tmux_heredoc
-        auxiliar_scritps_create
+        auxiliar_scripts_create
         MINIMAL_PROVISIONED="downstream"
     fi
 
