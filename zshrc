@@ -127,6 +127,7 @@ set -g pane-border-status top
 set -g pane-border-style fg=yellow
 set -g pane-active-border-style \"bg=default fg=red\"
 bind c new-window -c \"#{pane_current_path}\"
+bind s choose-buffer
 bind = split-window -h -c \"#{pane_current_path}\"
 bind - split-window -v -c \"#{pane_current_path}\"
 bind h select-pane -L

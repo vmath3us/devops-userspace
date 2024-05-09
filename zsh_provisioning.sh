@@ -140,6 +140,7 @@ set -g status-style fg=black,bg=yellow
 bind = split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 bind c new-window -c "#{pane_current_path}"
+bind s choose-buffer
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
