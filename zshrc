@@ -117,19 +117,33 @@ if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] ; then
      echo "parametro nulo, precisa de usuário, destino, e nome da sessão, nessa ordem"
      exit 1
 else
-ssh "$1"@"$2" -t "if [ \$(which tmux) ] ; then
+ssh "$1"@"$2" -t 'if [ $(which tmux) ] ; then
 cat > /tmp/.vmath3us.tmux.conf <<EOF
 set-window-option -g mode-keys vi
+set-window-option -g xterm-keys on
+set -s escape-time 0
+
 set-option -g history-limit 3000000
-set -g default-terminal \"tmux-256color\"
-set -ga terminal-overrides \",*256col*:Tc\"
+
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+
+setw -g pane-base-index 1
+set -g base-index 1
 set -g pane-border-status top
-set -g pane-border-style fg=yellow
-set -g pane-active-border-style \"bg=default fg=red\"
-bind c new-window -c \"#{pane_current_path}\"
+set -g status-left-length 50
+set -g status-justify absolute-centre
+
+set -g status-style "fg=black,bg=orange"
+set -g window-status-format "#[fg=black] #I:#W "
+set -g window-status-current-format "#[bg=black,fg=orange] #I:#W "
+set -g status-left "#[bg=black,fg=orange] #{session_name} "
+set -g status-right "#[bg=black,fg=orange] %Y/%m/%d %H:%M:%S "
+
+bind = split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind c new-window -c "#{pane_current_path}"
 bind s choose-buffer
-bind = split-window -h -c \"#{pane_current_path}\"
-bind - split-window -v -c \"#{pane_current_path}\"
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
@@ -139,10 +153,10 @@ bind-key -n M-i resize-pane -D
 bind-key -n M-o resize-pane -U
 bind-key -n M-p resize-pane -R
 EOF
-TERM=xterm-256color tmux -f /tmp/.vmath3us.tmux.conf -2 -u new-session -A -s "${3}"
+TERM=xterm-256color tmux -f /tmp/.vmath3us.tmux.conf -2 -u new-session -A -s '\"${3}\"'
 else
 exec bash
-fi"
+fi'
 fi
 }
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet

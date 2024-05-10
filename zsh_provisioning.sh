@@ -127,16 +127,30 @@ function tmux_heredoc()
 {
     mkdir -pv ~/.config/tmux
 cat >> ~/.config/tmux/tmux.conf <<EOF
-set-window-option -g mode-keys vi
+unbind C-b
 set -g prefix C-w
+
+set-window-option -g mode-keys vi
+set-window-option -g xterm-keys on
+set -s escape-time 0
+
 set-option -g history-limit 3000000
-set-option -g repeat-time 2000
+
 set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
+
+setw -g pane-base-index 1
+set -g base-index 1
 set -g pane-border-status top
-set -g pane-border-style fg=cyan
-set -g pane-active-border-style "bg=black fg=pink"
-set -g status-style fg=black,bg=yellow
+set -g status-left-length 50
+set -g status-justify absolute-centre
+
+set -g status-style "fg=black,bg=cyan"
+set -g window-status-format '#[fg=black] #I:#W '
+set -g window-status-current-format '#[bg=black,fg=cyan] #I:#W '
+set -g status-left '#[bg=black,fg=cyan] #{session_name} '
+set -g status-right '#[bg=black,fg=cyan] %Y/%m/%d %H:%M:%S '
+
 bind = split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 bind c new-window -c "#{pane_current_path}"
