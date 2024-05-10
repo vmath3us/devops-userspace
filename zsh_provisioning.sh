@@ -126,7 +126,7 @@ function shell()
 function tmux_heredoc()
 {
     mkdir -pv ~/.config/tmux
-cat >> ~/.config/tmux/tmux.conf <<EOF
+cat > ~/.config/tmux/tmux.conf <<EOF
 unbind C-b
 set -g prefix C-w
 default_color=cyan
