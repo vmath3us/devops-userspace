@@ -129,6 +129,7 @@ function tmux_heredoc()
 cat >> ~/.config/tmux/tmux.conf <<EOF
 unbind C-b
 set -g prefix C-w
+default_color=cyan
 
 set-window-option -g mode-keys vi
 set-window-option -g xterm-keys on
@@ -145,14 +146,14 @@ set -g pane-border-status top
 set -g status-left-length 50
 set -g status-justify absolute-centre
 
-set -g status-style "fg=black,bg=cyan"
+set -g status-style "fg=black,bg=\${default_color}"
 set -g window-status-format "#[fg=black] #I:#W "
-set -g window-status-current-format "#[bg=black,fg=cyan] #I:#W "
+set -g window-status-current-format "#[bg=black,fg=\${default_color}] #I:#W "
 set -g pane-border-status top
-set -g pane-border-style "bg=black fg=cyan"
-set -g pane-active-border-style "bg=cyan fg=black"
-set -g status-left "#[bg=black,fg=cyan] #{session_name} "
-set -g status-right "#[bg=black,fg=cyan] %Y/%m/%d %H:%M:%S "
+set -g pane-border-style "bg=black fg=\${default_color}"
+set -g pane-active-border-style "bg=\${default_color} fg=black"
+set -g status-left "#[bg=black,fg=\${default_color}] #{session_name} "
+set -g status-right "#[bg=black,fg=\${default_color}] %Y/%m/%d %H:%M:%S "
 
 bind = split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"

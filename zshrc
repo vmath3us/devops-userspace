@@ -119,6 +119,8 @@ if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] ; then
 else
 ssh "$1"@"$2" -t 'if [ $(which tmux) ] ; then
 cat > /tmp/.vmath3us.tmux.conf <<EOF
+default_color=red
+
 set-window-option -g mode-keys vi
 set-window-option -g xterm-keys on
 set -s escape-time 0
@@ -134,14 +136,14 @@ set -g pane-border-status top
 set -g status-left-length 50
 set -g status-justify absolute-centre
 
-set -g status-style "fg=black,bg=red"
+set -g status-style "fg=black,bg=\${default_color}"
 set -g window-status-format "#[fg=black] #I:#W "
-set -g window-status-current-format "#[bg=black,fg=red] #I:#W "
+set -g window-status-current-format "#[bg=black,fg=\${default_color}] #I:#W "
 set -g pane-border-status top
-set -g pane-border-style "bg=black fg=red"
-set -g pane-active-border-style "bg=red fg=black"
-set -g status-left "#[bg=black,fg=red] #{session_name} "
-set -g status-right "#[bg=black,fg=red] %Y/%m/%d %H:%M:%S "
+set -g pane-border-style "bg=black fg=\${default_color}"
+set -g pane-active-border-style "bg=\${default_color} fg=black"
+set -g status-left "#[bg=black,fg=\${default_color}] #{session_name} "
+set -g status-right "#[bg=black,fg=\${default_color}] %Y/%m/%d %H:%M:%S "
 
 bind = split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
