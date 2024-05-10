@@ -149,8 +149,8 @@ set -g status-style "fg=black,bg=cyan"
 set -g window-status-format "#[fg=black] #I:#W "
 set -g window-status-current-format "#[bg=black,fg=cyan] #I:#W "
 set -g pane-border-status top
-set -g pane-border-style fg=yellow
-set -g pane-active-border-style "bg=default fg=red"
+set -g pane-border-style "bg=black fg=cyan"
+set -g pane-active-border-style "bg=cyan fg=black"
 set -g status-left "#[bg=black,fg=cyan] #{session_name} "
 set -g status-right "#[bg=black,fg=cyan] %Y/%m/%d %H:%M:%S "
 
