@@ -115,7 +115,7 @@ stmux()
 {
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] ; then
      echo "parametro nulo, precisa de usuário, destino, e nome da sessão, nessa ordem"
-     exit 1
+     return 1
 else
 ssh "$1"@"$2" -t 'if [ $(which tmux) ] ; then
 cat > /tmp/.vmath3us.tmux.conf <<EOF
