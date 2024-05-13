@@ -164,4 +164,14 @@ exec bash
 fi'
 fi
 }
+term-colors () 
+{
+     for i in {0..255}; do
+          printf "\x1b[38;5;${i}mcolor%-5i\x1b[0m" $i
+               if ! (( ($i + 1 ) % 8 )); then
+                    echo
+               fi
+     done
+
+}
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
