@@ -158,7 +158,7 @@ bind-key -n M-i resize-pane -D 3
 bind-key -n M-o resize-pane -U 3
 bind-key -n M-p resize-pane -R 3
 EOF
-TERM=xterm-256color tmux -f /tmp/.vmath3us.tmux.conf -2 -u new-session -A -s '\"${3}\"'
+TERM=xterm-256color tmux -S /tmp/.vmath3us.tmux.sock -f /tmp/.vmath3us.tmux.conf -2 -u new-session -A -s '\"${3}\"'
 else
 exec bash
 fi'
