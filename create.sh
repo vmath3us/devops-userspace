@@ -75,6 +75,8 @@ function container_create_gen_command(){
     --hostname $container_name
     --net host
     ${socket_mount_string}
+    -v tmp-$container_name:/tmp:Z
+    -v root-$container_name:/root:Z
     -v ${code_mount_path}:/run/host${code_mount_path}:rslave
     -w /run/host${code_mount_path}
     $image_name:latest"
