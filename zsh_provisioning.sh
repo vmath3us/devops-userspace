@@ -4,6 +4,8 @@ function minimal_userspace()
     echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh &&
     echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
     apk add --update \
+            zoxide \
+            exa \
             inotify-tools \
             alpine-conf \
             shadow \
