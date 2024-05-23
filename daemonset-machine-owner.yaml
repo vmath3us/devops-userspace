@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: machine-owner-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: machine-owner-app
+  template:
+    metadata:
+      labels:
+        app: machine-owner-app
+    spec:
+      hostPID: true
+      hostNetwork: true
+      hostname: full-machine-owner
+      volumes:
+      - hostPath:
+          path: /
+          type: Directory
+        name: root-host-0
+      - hostPath:
+          path: /dev
+          type: Directory
+        name: dev-host-1
+      - hostPath:
+          path: /sys
+          type: Directory
+        name: sys-host-2
+      containers:
+      - name: machine-owner
+        image: docker.io/library/alpine:edge
+        workingDir: /root
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          procMount: Unmasked
+          runAsGroup: 0
+          runAsUser: 0
+        command: [ "/bin/sh" ]
+        args:
+        - -c
+        - |
+          apk add curl zsh
+          curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh
+          sleep infinity
+        volumeMounts:
+        - mountPath: /run/host
+          name: root-host-0
+        - mountPath: /dev
+          name: dev-host-1
+        - mountPath: /sys
+          name: sys-host-2

@@ -57,11 +57,25 @@ or:
 
     kubectl exec --stdin --tty <pod-name> -- /bin/zsh
 
+
+## DANGEOURS
+
+Full owner machine: all process, disks, net interfaces, permissions, all cluster machines (workers).
+kubernetes:
+
+    kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/daemonset-machine-owner.yaml
+
+docker/podman(docker by default, set CONTAINER_ENGINE=podman):
+
+    curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/container-machine-owner.sh | bash
+
+## Extras
+
 shell configure:
 
     p10k configure
 
-Read zsh_provisioning.sh to profiles
+Read zsh_provisioning.sh to profiles.
 
 
 ## SHELL ONLY
