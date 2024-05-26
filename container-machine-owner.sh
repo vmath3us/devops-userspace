@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z $CONTAINER_ENGINE ] ; then ; ${CONTAINER_ENGINE}="docker" ; fi
+if [ -z $CONTAINER_ENGINE ] ; then CONTAINER_ENGINE="docker" ; fi
 "${CONTAINER_ENGINE}" create \
         --restart=unless-stopped \
         --entrypoint /bin/sh \

@@ -13,7 +13,6 @@ spec:
     spec:
       hostPID: true
       hostNetwork: true
-      hostname: full-machine-owner
       volumes:
       - hostPath:
           path: /
