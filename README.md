@@ -21,7 +21,7 @@ rootless podman image create:
 
 directly on podman/docker container (rootless or rootfull):
 
-    podman/docker run -dit <your flags and volumes> --name <name> alpine:edge sh -uelic "if [ ! -e /root/.zshrc ] ;then apk add curl zsh ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh ; fi ; sleep infinity"
+    podman/docker run -dit <your flags and volumes> --name <name> alpine:edge sh -uelic "if [ ! -e /root/.zshrc ] ;then apk add curl ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | sh ; fi ; sleep infinity"
 
     podman/docker logs -f <name>
 
@@ -51,7 +51,7 @@ or:
 
 or:
 
-    kubectl run --image=alpine:edge <pod-name> -- /bin/sh -uelic "apk add curl zsh ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh ; sleep infinity"
+    kubectl run --image=alpine:edge <pod-name> -- /bin/sh -uelic "apk add curl ; curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | sh ; sleep infinity"
 
     kubectl logs -f <pod-name>
 
@@ -75,7 +75,7 @@ shell configure:
 
     p10k configure
 
-Read zsh_provisioning.sh to profiles.
+Read sh-provisioning.sh to profiles.
 
 
 ## SHELL ONLY

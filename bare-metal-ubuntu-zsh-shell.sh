@@ -12,7 +12,7 @@ if [ $(whoami) = "root" ] ; then
 	        sleep 1
 	    done &&
 	    apt update &&
-	    apt install -y git bash zsh curl ; curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | MINIMAL_PROVISIONED=1 PROFILE=shell zsh || exit 1
+	    apt install -y git bash zsh curl ; curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | MINIMAL_PROVISIONED=1 PROFILE=shell zsh || exit 1
 	fi && echo "execute: 
                 exec zsh
                 "

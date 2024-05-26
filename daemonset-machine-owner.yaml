@@ -40,8 +40,8 @@ spec:
         args:
         - -c
         - |
-          apk add curl zsh
-          curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | zsh
+          apk add curl
+          curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | sh
           sleep infinity
         volumeMounts:
         - mountPath: /run/host

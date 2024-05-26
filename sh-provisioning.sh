@@ -1,12 +1,13 @@
-#!/bin/zsh
+#!/bin/sh
 function minimal_userspace()
 {
     echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh &&
     echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
     apk add --update \
+            zsh \
             util-linux \
             zoxide \
-            exa \
+            eza \
             inotify-tools \
             alpine-conf \
             shadow \
@@ -69,7 +70,7 @@ chmod +x /usr/local/bin/kubectl
 function editor()
 {
     if [ -z $MINIMAL_PROVISIONED ] ; then
-        apk add bash git neovim fd ripgrep bat tmux shadow
+        apk add zsh eza zoxide bash git neovim fd ripgrep bat tmux shadow
         chsh -s /bin/zsh root
         tmux_heredoc
         auxiliar_scripts_create
@@ -89,7 +90,7 @@ git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim
 function shell()
 {
     if [ -z $MINIMAL_PROVISIONED ] ; then
-        apk add bash git neovim fd ripgrep bat tmux shadow
+        apk add zsh eza zoxide bash git neovim fd ripgrep bat tmux shadow
         chsh -s /bin/zsh root
         mkdir -p /root/.config/nvim
         neovim_heredoc
@@ -99,7 +100,7 @@ function shell()
     fi
 
     # apt/zypper/dnf/any install git bash zsh curl
-    # MINIMAL_PROVISIONED=1 PROFILE=shell zsh zsh_provisioning.sh
+    # MINIMAL_PROVISIONED=1 PROFILE=shell zsh sh-provisioning.sh
     curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zshrc -o ~/zshrc &&
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &&
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions &&
@@ -108,7 +109,7 @@ function shell()
     ~/.fzf/install --completion --key-bindings --update-rc &&
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k &&
     cp ~/zshrc ~/.zshrc &&
-        if [ $(whoami) != "root" ] ; then ; sed -i "s|/root|$HOME|g" ~/.zshrc ; fi
+    if [ $(whoami) != "root" ] ; then sed -i "s|/root|$HOME|g" ~/.zshrc ; fi
     # exec zsh
     ##### exemplo #######
     # podman run \
@@ -119,7 +120,7 @@ function shell()
     # --rm \
     # debian:stable-slim sh -uelic 'apt update ; 
     # apt install -y git bash zsh curl ; 
-    # curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/zsh_provisioning.sh | MINIMAL_PROVISIONED=1 PROFILE=shell zsh ; sed -i "s|/root|$HOME|g" $HOME/.zshrc; sleep infinity'
+    # curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | MINIMAL_PROVISIONED=1 PROFILE=shell zsh ; sed -i "s|/root|$HOME|g" $HOME/.zshrc; sleep infinity'
     return
 }
 #--[no-]key-bindings  Enable/disable key bindings (CTRL-T, CTRL-R, ALT-C)
