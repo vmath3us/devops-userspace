@@ -14,7 +14,7 @@ if [ -z $CONTAINER_ENGINE ] ; then CONTAINER_ENGINE="docker" ; fi
         --ipc host \
         --network host \
         --pid host \
-        --volume /run/host:/run/host:rslave \
+        --volume /:/run/host:rslave \
         --volume /dev:/dev:rslave \
         --volume /sys:/sys:rslave \
         --cap-add=ALL \
