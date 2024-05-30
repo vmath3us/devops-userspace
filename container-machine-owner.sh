@@ -24,5 +24,4 @@ if [ -z $CONTAINER_ENGINE ] ; then CONTAINER_ENGINE="docker" ; fi
                             fi
                             sleep infinity"
 "${CONTAINER_ENGINE}" start machine-owner
-sleep 10
-"${CONTAINER_ENGINE}" exec -it machine-owner zsh
+"${CONTAINER_ENGINE}" logs -f machine-owner
