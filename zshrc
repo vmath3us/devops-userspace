@@ -241,4 +241,10 @@ term-colors ()
      done
 
 }
+
+geoip ()
+{
+     curl ipinfo.io/"${@}" | jq -r
+}
+
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
