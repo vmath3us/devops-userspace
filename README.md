@@ -43,7 +43,7 @@ or:
 
     kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/job-devops-userspace.yaml
 
-    kubectl patch jobs -n devops-userspace-job -p '{"spec" : {"suspend" : false }}'
+    kubectl patch jobs devops-userspace-job -p '{"spec" : {"suspend" : false }}'
 
     kubectl logs -f <pod-name>
 
@@ -60,7 +60,7 @@ or:
 
 ## DANGEOURS
 
-Full owner machine: all process, disks, net interfaces, permissions, all cluster machines (workers).
+Full owner machine: all process, disks, net interfaces, permissions, all cluster machines (workers). Allow host chroot.
 kubernetes:
 
     kubectl apply -f https://gitlab.com/vmath3us/devops-userspace/-/raw/main/daemonset-machine-owner.yaml
@@ -82,3 +82,13 @@ Read sh-provisioning.sh to profiles.
 ubuntu/debian:
 
     curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/bare-metal-ubuntu-zsh-shell.sh | bash 
+
+## Docker static install
+systemd or using setsid --fork:
+
+    curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/docker-static-install.sh | bash 
+
+## Rke2 single node setup
+rke2 script install (v1.28.9+rke2r1 + local-path v0.0.27 Retain, systemd init only):
+    
+    curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/rke2-local-path-stgc.sh | bash
