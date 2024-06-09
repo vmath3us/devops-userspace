@@ -1,0 +1,36 @@
+[org/gnome/desktop/input-sources]
+mru-sources=[('xkb', 'us')]
+sources=[('xkb', 'br')]
+xkb-options=['ctrl:nocaps', 'caps:ctrl_modifier', 'shift:both_capslock']
+
+[org/gnome/desktop/wm/keybindings]
+close=['<Super>q']
+cycle-windows=['<Alt>Tab']
+cycle-windows-backward=['<Shift><Alt>Tab']
+move-to-monitor-left=['<Alt>a']
+move-to-monitor-right=['<Alt>s']
+move-to-workspace-left=['<Alt>q']
+move-to-workspace-right=['<Alt>w']
+switch-applications=@as []
+switch-applications-backward=@as []
+switch-to-workspace-left=['<Alt>1']
+switch-to-workspace-right=['<Alt>2']
+switch-windows=['<Alt>Escape']
+switch-windows-backward=['<Shift><Alt>Escape']
+
+[org/gnome/desktop/wm/preferences]
+mouse-button-modifier='<Alt>'
+num-workspaces=8
+
+[org/gnome/mutter]
+center-new-windows=true
+dynamic-workspaces=false
+experimental-features=['scale-monitor-framebuffer']
+
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='F2'
+command='/usr/bin/terminator -p default'
+name='terminator'
