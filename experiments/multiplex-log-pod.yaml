@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: multiplex-log-demo-pod
+  name: multiplex-log-demo-pod
+spec:
+  containers:
+  - name: multiplex-log-demo-container
+    image: ubuntu:24.04
+    tty: true
+    securityContext:
+      privileged: true
+    ports:
+    - containerPort: 22
+      hostPort: 5051
+    command: ['/bin/bash']
+    args:
+    - '-c'
+    - |
+      cat >> /usr/local/bin/multi-logs.sh <<-EOF
+      touch /var/log/example.log
+      setsid --fork bash -c "while true ; do for i in {1..1000000} ; do sleep 0.3 ; echo \\\$i >> /var/log/example.log ; done ; done" >/dev/null 2>/dev/null
+      tmux new-session -d -s test -c "bash -c" "journalctl -f"
+      tmux split-window -v -t test:0 'tail -f /var/log/example.log'
+      tmux select-layout -t test:0 even-vertical
+      tmux select-pane -t test:0.0
+      tmux a -t test
+      EOF
+
+      cat >> /etc/systemd/system/multiplex-logs.service <<-EOF
+      [Unit]
+      Description=multiplex logs
+      
+      [Service]
+      ExecStart=/bin/bash -i /usr/local/bin/multi-logs.sh
+      StandardInput=tty
+      StandardOutput=tty
+      StandardError=tty
+      TTYPath=/dev/console
+      Restart=on-failure
+      RestartSec=10
+      
+      [Install]
+      WantedBy=multi-user.target
+      EOF
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y vim systemd ssh tmux
+      printf 'root\nroot' | passwd root
+      sed -i -e "s/#PermitRoot.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
+      systemctl enable ssh
+      systemctl enable /etc/systemd/system/multiplex-logs.service
+      exec /usr/lib/systemd/systemd
