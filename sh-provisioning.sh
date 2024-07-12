@@ -282,6 +282,10 @@ function main()
         neovim_heredoc
     fi
 }
+if mountpoint -q /run/host && [ -z $MACHINE_OWNER ] 
+then
+    exit
+fi
 if [ ! -z $ONLY_HEREDOCS ] ; then
     tmux_heredoc
     neovim_heredoc

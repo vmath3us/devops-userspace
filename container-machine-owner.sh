@@ -18,10 +18,9 @@ if [ -z $CONTAINER_ENGINE ] ; then CONTAINER_ENGINE="docker" ; fi
         --volume /dev:/dev:rslave \
         --volume /sys:/sys:rslave \
         --cap-add=ALL \
-        alpine:edge -ec "if [ ! -e /root/.zshrc ] ;then
-                            apk add curl
-                            curl -fSL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | sh
-                            fi
-                            sleep infinity"
+        alpine:edge -ec "
+            apk add curl
+            curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh -o /usr/local/bin/sh-provisioning.sh
+            sleep infinity"
 "${CONTAINER_ENGINE}" start machine-owner
 "${CONTAINER_ENGINE}" logs -f machine-owner
