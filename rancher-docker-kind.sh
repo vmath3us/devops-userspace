@@ -142,17 +142,17 @@ kubectl -n cattle-system create secret generic tls-ca --from-file=cacerts.pem
 
 kubectl -n cattle-system create secret tls --cert=${1}.crt --key=${1}.key tls-rancher-ingress
 
-helm upgrade --install rancher \
-        rancher-stable/rancher \
-        --namespace cattle-system \
-        --create-namespace \
-        --set antiAffinity=required \
-        --set hostname="${1}" \
-        --set bootstrapPassword=admin \
-        --set ingress.tls.source=secret \
-        --set ingress.ingressClassName=nginx \
-        --set privateCA=true \
-        --set replicas=1 \
-        --set global.cattle.psp.enabled=false
+helm upgrade --install rancher rancher \
+    --repo https://releases.rancher.com/server-charts/stable \
+    --namespace cattle-system \
+    --create-namespace \
+    --set antiAffinity=required \
+    --set hostname="${1}" \
+    --set bootstrapPassword=admin \
+    --set ingress.tls.source=secret \
+    --set ingress.ingressClassName=nginx \
+    --set privateCA=true \
+    --set replicas=1 \
+    --set global.cattle.psp.enabled=false
 
 kubectl rollout status -n cattle-system deployment/rancher
