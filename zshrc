@@ -246,5 +246,8 @@ geoip ()
 {
      curl ipinfo.io/"${@}" | jq -r
 }
-
+secret_decode()
+{
+  jq -r '.data | map_values(@base64d)'
+}
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
