@@ -138,7 +138,7 @@ set-window-option -g mode-keys vi
 set-window-option -g xterm-keys on
 set -s escape-time 0
 
-set-option -g history-limit 3000000
+set-option -g history-limit 3000
 
 set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
