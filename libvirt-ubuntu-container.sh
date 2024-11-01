@@ -6,6 +6,18 @@ set -e
 #### bash <this-script> 'my-key'
 ####
 #### access using virt-manager remote-mode   (thanks 89luca89 -> https://github.com/89luca89/distrobox/blob/main/docs/posts/run_libvirt_in_distrobox.md#connect-via-ssh)
+##### flatpak remote-add --if-not-exists fedora oci+https://registry.fedoraproject.org --user
+##### flatpak install --user org.virt_manager.virt-manager
+##### cat >> ~/.ssh/config <<-EOF
+##### Host libvirt-host
+#####     Hostname 127.0.0.1
+#####     user root
+#####     port 10100
+#####     IdentityFile ~/.ssh/libvirt-key
+#####     StrictHostKeyChecking=no
+##### EOF
+##### test: ssh libvirt-host
+##### using: ~/.local/share/flatpak/exports/bin/org.virt_manager.virt-manager -c qemu+ssh://libvirt-host/system
 if [ -z ${1} ] ; then
     echo 'ssh pubkey null; exiting'
     exit
