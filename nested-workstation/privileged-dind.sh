@@ -2,7 +2,7 @@
 docker build . -t docker-workstation
 export PASS=$(uuidgen)
 docker run \
-            -d \
+            -dt \
             --env PASS="${PASS}" \
             -p 127.0.0.1:15000:15000 \
             --shm-size 1G \
