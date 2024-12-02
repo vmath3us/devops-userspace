@@ -1,5 +1,4 @@
 #!/bin/bash
-#podman build . -t podman-workstation-lxqt-systemd --layers=true --format=docker
 docker build . -t docker-workstation-lxqt-systemd --progress=plain
 export PASS=$(uuidgen| sed 's/-//g')
 docker run \

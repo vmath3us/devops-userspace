@@ -4,31 +4,28 @@ ENV PASS='358689eda899af35f8a4da4a2211f67af8a90f1e0fd8b92b0d709513707778e8'
 
 SHELL [ "/bin/bash", "-c" ]
 
-
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
-echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh
-echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
-echo 'LANG=en_US.UTF-8' >> /etc/locale.conf
+echo 'export LC_ALL=pt_BR.UTF-8' >> /etc/profile.d/locale.sh
+echo 'export LANG=pt_BR.UTF-8' >> /etc/profile.d/locale.sh
+echo 'LANG=pt_BR.UTF-8' >> /etc/locale.conf
 apt-get update
 apt-get install -y locales tzdata
 ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
 dpkg-reconfigure -fnoninteractive tzdata
-echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
+echo -e 'pt_BR.UTF-8 UTF-8\nen_US.UTF-8 UTF-8' > /etc/locale.gen
 locale-gen
 EOF
 
-ENV LANG='en_US.UTF-8'
-ENV LANGUAGE='en_US:en'
-ENV LC_ALL='en_US.UTF-8'
+ENV LANG='pt_BR.UTF-8'
+ENV LANGUAGE='pt_BR:en'
+ENV LC_ALL='pt_BR.UTF-8'
 
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
-echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile.d/locale.sh
-echo 'export LANG=en_US.UTF-8' >> /etc/profile.d/locale.sh
-echo 'LANG=en_US.UTF-8' >> /etc/locale.conf
 apt-get update
 apt-get install -y \
+            systemd \
             dbus-x11 \
             uuid-runtime \
             wget \
@@ -77,61 +74,17 @@ apt-get install -y xpra
 EOF
 
 
-
-### docker dind
+### docker
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y \
-                iptables
-update-alternatives --set iptables /usr/sbin/iptables-legacy
 
-groupadd -g 98765 docker
-##### -> https://hub.docker.com/_/docker/tags?name=dind
-##### -> https://hub.docker.com/layers/library/docker/dind/images/sha256-c8050e971e7c9517d0004d3ec241d6c860ae36332082f18ed7f24e82fafb8cb7?context=explore
-
-LATEST_DOCKER=$(curl -L https://api.github.com/repos/moby/moby/releases/latest | awk -F'tag/' '/html_url/ {gsub(/v/, "", $2); print $2}' | awk -F'"' '{print $1}')
-
-LATEST_DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-"${LATEST_DOCKER}".tgz"
-
-cd /usr/local/bin
-curl -L $LATEST_DOCKER_URL | tar -zxf -  --strip-components 1 --directory /usr/local/bin/ --no-same-owner
-
-curl -L https://raw.githubusercontent.com/docker-library/docker/refs/heads/master/modprobe.sh -o ./modprobe
-
-curl -LO https://raw.githubusercontent.com/docker-library/docker/refs/heads/master/dockerd-entrypoint.sh
-curl -LO https://raw.githubusercontent.com/docker-library/docker/refs/heads/master/docker-entrypoint.sh
-curl -LO https://raw.githubusercontent.com/moby/moby/refs/heads/master/hack/dind
-
-
-chmod +x ./modprobe
-chmod +x ./dockerd-entrypoint.sh
-chmod +x ./docker-entrypoint.sh
-chmod +x ./dind
-
-mkdir -pv /usr/local/libexec/docker/cli-plugins/
-cd /usr/local/libexec/docker/cli-plugins/
-
-LATEST_BUILDX_URL=$(curl https://api.github.com/repos/docker/buildx/releases/latest | awk '/browser_download_url/ && /linux-amd64/ && !/json/ { gsub(/"/, "", $2); print $2 }')
-LATEST_COMPOSE_URL=$(curl https://api.github.com/repos/docker/compose/releases/latest | awk '/browser_download_url/ && /linux-x86_64/ && !/sha256/ { gsub(/"/, "", $2); print $2 }')
-curl -L $LATEST_BUILDX_URL -o docker-buildx
-curl -L $LATEST_COMPOSE_URL -o docker-compose
-chmod +x ./*
-ln -s /usr/local/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
-
-
-cat >> /usr/local/bin/docker-start.sh <<-IS_DOCKER_STARTER
-#!/bin/bash
-setsid --fork bash -c "export TINI_SUBREAPER='1' ; export  DOCKER_TLS_CERTDIR='' ; /usr/local/bin/dockerd-entrypoint.sh dockerd >> /dev/ttydocker 2>> /dev/ttydocker"
-IS_DOCKER_STARTER
-
-chmod +x /usr/local/bin/docker-start.sh
+curl -fsSL https://get.docker.com | bash
 
 cat >> /home/ubuntu/.bashrc <<-IS_DOCKERSETUP
 source /etc/bash_completion
 source <(docker completion bash)
 IS_DOCKERSETUP
-
 
 usermod -aG docker ubuntu
 EOF
@@ -142,6 +95,11 @@ cd /opt
 curl -L 'https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64' -o code.deb
 apt-get install -y ./code.deb
 rm ./code.deb
+EOF
+
+RUN <<EOF
+export DEBIAN_FRONTEND=noninteractive
+cd /opt
 curl -o ./codium.deb -L $(curl https://api.github.com/repos/VSCodium/vscodium/releases/latest  | awk '/browser_download_url/ && /amd64.deb/ && !/sha/ { gsub(/"/, "", $2); print $2 }')
 apt-get install -y ./codium.deb
 rm ./codium.deb
@@ -153,20 +111,16 @@ cd /opt
 curl -L https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o chrome.deb
 apt-get install -y ./chrome.deb
 rm ./chrome.deb
-cat > /usr/local/bin/run-google-chrome.sh <<-IS_SCRIPT
-#!/bin/bash
-rm -rf /home/ubuntu/.config/google-chrome/Singleton* || true
-google-chrome --no-sandbox --enable-unsafe-swiftshader
-IS_SCRIPT
-chmod +x /usr/local/bin/run-google-chrome.sh
 EOF
 
 RUN <<EOF
+#### -> https://support.mozilla.org/en-US/kb/install-firefox-linux
 cd /opt
 curl -L 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=pt-BR' -o firefox-latest.tar.bz2
 tar -xf ./firefox-latest.tar.bz2
 rm ./firefox-latest.tar.bz2
 ln -s /opt/firefox/firefox /usr/local/bin/firefox
+wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications
 EOF
 
 USER ubuntu
@@ -176,17 +130,25 @@ RUN <<EOF
 cd /home/ubuntu
 mkdir -pv ./.local/bin
 mkdir -pv ./.local/share/fonts
+mkdir -pv ./.local/share/flatpak
 mkdir -pv ./.config/tmux
 mkdir -pv ./.config/terminator
 
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo --user
 
 curl -L https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf -o /home/ubuntu/.local/share/fonts/meslo_nerd_bold.ttf
 fc-cache -vf
 
 cat > ./.config/tmux/tmux.conf <<-IS_TMUX_CONF
 unbind C-b
-set -g prefix C-s
+set -s copy-command 'xsel --clipboard --input'
+set -g prefix C-a
 default_color=colour202
+#setw -g mouse on
+
+set-option -g set-titles on
+set-option -g set-titles-string "#S / #W"
+
 
 set-window-option -g mode-keys vi
 set-window-option -g xterm-keys on
@@ -212,19 +174,25 @@ set -g pane-active-border-style "bg=\${default_color} fg=black"
 set -g status-left "#[bg=black,fg=\${default_color}] #{session_name} "
 set -g status-right "#[bg=black,fg=\${default_color}] %Y/%m/%d %H:%M:%S "
 
-bind = split-window -h -c "#{pane_current_path}"
-bind - split-window -v -c "#{pane_current_path}"
 bind c new-window -c "#{pane_current_path}"
 bind s choose-buffer
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
 
-bind u resize-pane -L 3
-bind i resize-pane -D 3
-bind o resize-pane -U 3
-bind p resize-pane -R 3
+bind-key -n C-g split-window -h -c "#{pane_current_path}"
+bind-key -n C-f split-window -v -c "#{pane_current_path}"
+
+bind-key -n M-h select-pane -L
+bind-key -n M-j select-pane -D
+bind-key -n M-k select-pane -U
+bind-key -n M-l select-pane -R
+bind-key -n M-n next-window
+
+bind-key -n C-h resize-pane -L
+bind-key -n C-j resize-pane -D
+bind-key -n C-k resize-pane -U
+bind-key -n C-l resize-pane -R
+bind-key -n C-o send C-n
+
+bind-key -n C-d list-sessions
 IS_TMUX_CONF
 
 cat > ./.config/terminator/config <<-IS_TERMINATOR_CONF
@@ -247,49 +215,36 @@ cat > ./.config/terminator/config <<-IS_TERMINATOR_CONF
       parent = window0
 [plugins]
 IS_TERMINATOR_CONF
+
 EOF
 
 USER root
+
 RUN <<EOF
-cat > /usr/local/bin/xpra-entrypoint.sh <<-IS_A_ENTRYPOINT
+cat > /usr/local/bin/xpra-exec.sh <<-IS_XPRA_STARTER
 #!/bin/bash
 export PASS="\${PASS}"
-printf "\$PASS\n\$PASS" | passwd ubuntu
-printf "\n\nsenha: \$PASS\n\n"
-rm -rvf /tmp/.X* || true
-mkdir -pv -m 0700 /run/user/1000
-mkdir -pv -m 0700 /run/xpra/1000
-mkdir -pv -m 0700 /run/xpra/ubuntu
-chown -Rv ubuntu:ubuntu /run/user/1000
-chown -Rv ubuntu:ubuntu /run/xpra/ubuntu
-chown -Rv ubuntu:ubuntu /run/xpra/1000
-
-# https://github.com/flatpak/flatpak/issues/5076#issuecomment-1425084748
-dbus-send --system /org/freedesktop/DBus org.freedesktop.DBus 2>/dev/null|| dbus-daemon --system --fork 2>/dev/null
-if [ ! -e /var/run/docker.sock ] || ! mountpoint -q /var/run/docker.sock ; then
-    printf "\n\ndocker.sock não detectado, executando script para docker-in-docker....\n\n"
-    /usr/local/bin/docker-start.sh
-else
-    printf "\n\ndocker.sock detectado, pulando execução de script para docker-in-docker....\n\n"
+if [ -z \$PASS ] ; then
+    export PASS=$(uuidgen| sed 's/-//g')
 fi
+printf "\$PASS\n\$PASS" | passwd ubuntu
+printf "\n\n                password xpra/sudo: \$PASS                \n\n\n"
+rm -rf /tmp/.X* 2>>/dev/null
+mkdir -p -m 0700 /run/xpra/ubuntu 2>>/dev/null
+mkdir -p -m 0700 /run/xpra/1000 2>>/dev/null
+chown -R ubuntu:ubuntu /run/user/1000 2>>/dev/null
+chown -R ubuntu:ubuntu /run/xpra/ubuntu 2>>/dev/null
+chown -R ubuntu:ubuntu /run/xpra/1000 2>>/dev/null
 
-
-printf "\n\nesperando docker.sock para executar 'chown -v ubuntu:docker /var/run/docker.sock'....\n\n"
-until [ -e /var/run/docker.sock ] ; do
-    sleep 0.1
-done
-chown -v ubuntu:docker /var/run/docker.sock
-
-sleep 5
 su -c "
     XDG_RUNTIME_DIR='/run/user/1000' \\
     DBUS_SYSTEM_BUS_ADDRESS='/run/dbus/system_bus_socket' \\
     FLATPAK_SYSTEM_HELPER_ON_SESSION='/run/dbus/system_bus_socket' \\
     DISPLAY=':80' \\
     XCURSOR_SIZE='50' \\
-    LANG='en_US.UTF-8' \\
-    LANGUAGE='en_US:en' \\
-    LC_ALL='en_US.UTF-8' \\
+    LANG='pt_BR.UTF-8' \\
+    LANGUAGE='pt_BR:en' \\
+    LC_ALL='pt_BR.UTF-8' \\
         xpra start \\
         ':80' \\
         '-d auth' \\
@@ -302,11 +257,51 @@ su -c "
         '--start-on-connect=/usr/bin/terminator' \\
         '--start=xhost +'
 " ubuntu
+IS_XPRA_STARTER
 
-sleep infinity
-IS_A_ENTRYPOINT
+chmod +x /usr/local/bin/xpra-exec.sh
 
-chmod +x /usr/local/bin/xpra-entrypoint.sh
+cat > /etc/systemd/system/xpra-start.service <<-IS_XPRA_SERVICE
+[Unit]
+Description=xpra-start
+
+[Service]
+Type=oneshot
+PassEnvironment=PASS
+ExecStart=/usr/local/bin/xpra-exec.sh
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/console
+
+[Install]
+WantedBy=multi-user.target
+IS_XPRA_SERVICE
+
+systemctl enable /etc/systemd/system/xpra-start.service
+
+
+#### by 89luca89 -> https://github.com/89luca89/distrobox/blob/18053c254a83750c49c08e58df2e48a0f04aef48/distrobox-init#L2549 
+UNIT_TARGETS="
+	/usr/lib/systemd/system/*.mount
+	/usr/lib/systemd/system/*.automount
+	/usr/lib/systemd/system/console-getty.service
+	/usr/lib/systemd/system/getty@.service
+	/usr/lib/systemd/system/systemd-machine-id-commit.service
+	/usr/lib/systemd/system/systemd-binfmt.service
+	/usr/lib/systemd/system/systemd-tmpfiles*
+	/usr/lib/systemd/system/systemd-udevd.service
+	/usr/lib/systemd/system/systemd-udev-trigger.service
+	/usr/lib/systemd/system/systemd-update-utmp*
+	/usr/lib/systemd/user/pipewire*
+	/usr/lib/systemd/user/wireplumber*
+	/usr/lib/systemd/system/suspend.target
+	/usr/lib/systemd/system/hibernate.target
+	/usr/lib/systemd/system/hybrid-sleep.target
+"
+for unit in $(find ${UNIT_TARGETS} 2> /dev/null); do
+	systemctl mask "$(basename "${unit}")" || true
+done
+
 EOF
 
 EXPOSE 15000
@@ -314,4 +309,4 @@ EXPOSE 15000
 VOLUME /home/ubuntu
 VOLUME /var/lib/docker
 
-ENTRYPOINT [ "/usr/local/bin/xpra-entrypoint.sh" ]
+ENTRYPOINT [ "/usr/lib/systemd/systemd" ]

@@ -1,26 +1,11 @@
 FROM docker-workstation:latest
 
-USER ubuntu
-
-RUN <<EOF
-
-cd /home/ubuntu
-
-mkdir -pv ./.config/lxqt
-
-cat >./.config/lxqt/session.conf <<-IS_LXQT_CONF
-[General]
-window_manager=openbox
-IS_LXQT_CONF
-
-EOF
-
 USER root
 
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y lxqt openbox xsel --no-install-recommends
+apt-get install -y kde-plasma-desktop kwin-x11 plasma-settings xsel --no-install-recommends
 systemctl disable display-manager.service || true
 systemctl mask display-manager.service || true
 EOF
@@ -60,7 +45,7 @@ su -c "
         '--notifications=no' \\
         '--no-audio' \\
         '--start-on-connect=/usr/bin/terminator' \\
-        '--start=/usr/bin/startlxqt'
+        '--start=/usr/bin/startplasma-x11'
 " ubuntu
 IS_XPRA_STARTER
 
