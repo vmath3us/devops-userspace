@@ -1,5 +1,19 @@
 FROM docker-workstation:latest
 
+USER ubuntu
+RUN <<EOF
+
+cd /home/ubuntu
+
+mkdir -pv ./.config/
+
+cat > ./.config/kwinrc <<-IS_KWIN_CONFIG
+[Compositing]
+Enabled=false
+IS_KWIN_CONFIG
+
+EOF
+
 USER root
 
 RUN <<EOF
