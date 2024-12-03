@@ -1,5 +1,24 @@
 FROM docker-workstation:latest
 
+USER ubuntu
+
+RUN <<EOF
+cd /home/ubuntu
+
+mkdir -pv ./.config/xfce4/xfconf/xfce-perchannel-xml
+
+cat > ./.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml <<-IS_XFWM4_CONFIG
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="xfwm4" version="1.0">
+  <property name="general" type="empty">
+    <property name="use_compositing" type="bool" value="false"/>
+  </property>
+</channel>
+IS_XFWM4_CONFIG
+
+EOF
+
 USER root
 
 RUN <<EOF
