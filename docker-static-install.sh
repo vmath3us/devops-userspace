@@ -5,8 +5,7 @@ set -e
 
 if [ $(whoami) != "root" ] ; then exit 1 ; fi
 
-LATEST_DOCKER=$(curl -L https://get.docker.com/rootless |awk -F'=' '/STABLE_LATEST=/ {gsub(/"/, "", $2); print $2; exit}')
-
+LATEST_DOCKER=$(curl -L https://api.github.com/repos/moby/moby/releases/latest | awk -F'tag/' '/html_url/ {gsub(/v/, "", $2); print $2}' | awk -F'"' '{print $1}')
 ## https://docs.docker.com/engine/install/binaries
 LATEST_DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-"${LATEST_DOCKER}".tgz"
 
