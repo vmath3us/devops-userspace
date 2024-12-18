@@ -24,7 +24,7 @@ USER root
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y xubuntu-desktop-minimal xfce4-settings xfwm4 xsel --no-install-recommends
+apt-get install -y xubuntu-desktop-minimal xfce4-settings xfwm4 --no-install-recommends
 systemctl disable display-manager.service || true
 systemctl mask display-manager.service || true
 EOF

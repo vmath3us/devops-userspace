@@ -20,7 +20,7 @@ USER root
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y lxqt openbox xsel --no-install-recommends
+apt-get install -y lxqt openbox --no-install-recommends
 systemctl disable display-manager.service || true
 systemctl mask display-manager.service || true
 EOF

@@ -40,6 +40,7 @@ apt-get install -y \
             rsync \
             xvfb \
             x11-xserver-utils \
+            xsel \
             python3-pip \
             python3-uinput \
             terminator \

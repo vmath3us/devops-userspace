@@ -19,7 +19,7 @@ USER root
 RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y kde-plasma-desktop kwin-x11 plasma-settings xsel --no-install-recommends
+apt-get install -y kde-plasma-desktop kwin-x11 plasma-settings --no-install-recommends
 systemctl disable display-manager.service || true
 systemctl mask display-manager.service || true
 EOF
