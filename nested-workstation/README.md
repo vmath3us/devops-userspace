@@ -15,7 +15,6 @@ Se usar o botão de tela cheia, o alt-tab funcionará para trocar de janela.
 
 Se quiser que seja acessivel em toda a rede interna, altere o bind-port para -p 15000:15000.
 
-
 A instalação do docker é via o script oficial get.docker.com, conforme visível no Dockerfile
 
 O uso do docker deve ser transparente, incluindo montagem de pastas de dentro da docker-workstation.
@@ -44,18 +43,15 @@ de dentro da docker-workstation, será acessivel do host somente via docker-work
 Chrome e Firefox estão inclusos como navegadores na build da docker-workstation, e de dentro deles,
 localhost:8080 funcionará.
 
-A opção shm-size é usada para permitir que o chrome (e electrons, como o vscod(e/ium) seja executado.
-Ver -> https://stackoverflow.com/questions/56218242/headless-chromium-on-docker-fails
-
 Pode-se adicionar --memory=sizeG , para limitar o consumo máximo de memória.
 
 Isso irá afetar por óbvio o total de cargas de trabalho internas possíveis.
 
 Como editores, estão inclusos vim, nano, vscode e vscodium.
 
-O terminal abre por padrão executando tmux, com leader-key alterada para ctrl-s, e outras customizações vi-like,
+O terminal abre por padrão executando tmux, com leader-key alterada para ctrl-a, e outras customizações vi-like,
 como pode ser visto no Dockerfile, ou de dentro da docker-workstation, em ~/.config/tmux/tmux.conf.
-O suporte a mouse do tmux foi deixado desligado para não conflitar com o terminal. A rolagem via mouse porem, depende de 'ctrl-s [' (aperte q para sair).
+O suporte a mouse do tmux foi deixado desligado para não conflitar com o terminal. A rolagem via mouse porem, depende de 'ctrl-a [' (aperte q para sair).
 
 Ter o tmux por padrão aumenta a resiliencia, dado que em caso de falha de conexão com o xpra, ou se o terminator fechar inesperadamente, ou mesmo
 o xpra inteiro tiver um crash, o tmux (idealmente) se mantem de pé, sendo possível um rettach via terminal (docker exec no host), ou,
@@ -69,4 +65,9 @@ O suporte a flatpak é instalado, e o flathub configurado como remote --user, pa
 ```bash
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo --user
 ```
-Entre nas pastas abaixo para builds que incluem ambientes desktop completos.
+
+São instalados plasma, xfce e lxqt, e o inicio deles é controlado via a env ENVIRONMENT (edite o script).
+Se diferente disso, ou não fornecido, xhost é executado.
+O Dockerfile foi estruturado de forma que se possa comentar a instalação de algum deles (ou todos), para build mais rapida e enxuta.
+
+Vários serviços que vem nas dependências são mascarados ao final do dockerfile.

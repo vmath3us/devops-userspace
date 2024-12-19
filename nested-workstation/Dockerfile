@@ -85,6 +85,7 @@ curl -fsSL https://get.docker.com | bash
 cat >> /home/ubuntu/.bashrc <<-IS_DOCKERSETUP
 source /etc/bash_completion
 source <(docker completion bash)
+if [ -e /docker.sock ] ; then export DOCKER_HOST='unix:///docker.sock' ; fi    ### dind docker by host socket
 IS_DOCKERSETUP
 
 usermod -aG docker ubuntu
@@ -122,6 +123,30 @@ tar -xf ./firefox-latest.tar.bz2
 rm ./firefox-latest.tar.bz2
 ln -s /opt/firefox/firefox /usr/local/bin/firefox
 wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications
+EOF
+
+RUN <<EOF
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y lxqt openbox --no-install-recommends
+systemctl disable display-manager.service || true
+systemctl mask display-manager.service || true
+EOF
+
+RUN <<EOF
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y xubuntu-desktop-minimal xfce4-settings xfwm4 --no-install-recommends
+systemctl disable display-manager.service || true
+systemctl mask display-manager.service || true
+EOF
+
+RUN <<EOF
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y kde-plasma-desktop kwin-x11 plasma-settings --no-install-recommends
+systemctl disable display-manager.service || true
+systemctl mask display-manager.service || true
 EOF
 
 USER ubuntu
@@ -219,6 +244,40 @@ IS_TERMINATOR_CONF
 
 EOF
 
+USER ubuntu
+
+RUN <<EOF
+
+cd /home/ubuntu
+
+mkdir -pv ./.config/lxqt
+
+cat >./.config/lxqt/session.conf <<-IS_LXQT_CONF
+[General]
+__userfile__=true
+window_manager=openbox
+IS_LXQT_CONF
+
+
+mkdir -pv ./.config/xfce4/xfconf/xfce-perchannel-xml
+
+cat > ./.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml <<-IS_XFWM4_CONFIG
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="xfwm4" version="1.0">
+  <property name="general" type="empty">
+    <property name="use_compositing" type="bool" value="false"/>
+  </property>
+</channel>
+IS_XFWM4_CONFIG
+
+cat > ./.config/kwinrc <<-IS_KWIN_CONFIG
+[Compositing]
+Enabled=false
+IS_KWIN_CONFIG
+
+EOF
+
 USER root
 
 RUN <<EOF
@@ -228,6 +287,25 @@ export PASS="\${PASS}"
 if [ -z \$PASS ] ; then
     export PASS=$(uuidgen| sed 's/-//g')
 fi
+export ENVIRONMENT="\${ENVIRONMENT}"
+case \$ENVIRONMENT in
+    plasma)
+        export EXEC="/usr/bin/startplasma-x11"
+        export XPRA_MODE="start-desktop"
+    ;;
+    xfce)
+        export EXEC="/usr/bin/startxfce4"
+        export XPRA_MODE="start-desktop"
+    ;;
+    lxqt)
+        export EXEC="/usr/bin/startlxqt"
+        export XPRA_MODE="start-desktop"
+    ;;
+    *)
+        export EXEC="xhost +"
+        export XPRA_MODE="start"
+    ;;
+esac
 printf "\$PASS\n\$PASS" | passwd ubuntu
 printf "\n\n                password xpra/sudo: \$PASS                \n\n\n"
 rm -rf /tmp/.X* 2>>/dev/null
@@ -246,7 +324,7 @@ su -c "
     LANG='pt_BR.UTF-8' \\
     LANGUAGE='pt_BR:en' \\
     LC_ALL='pt_BR.UTF-8' \\
-        xpra start \\
+        xpra \$XPRA_MODE \\
         ':80' \\
         '-d auth' \\
         '--bind-tcp=0.0.0.0:15000,auth=password,value=\$PASS' \\
@@ -256,7 +334,7 @@ su -c "
         '--notifications=no' \\
         '--no-audio' \\
         '--start-on-connect=/usr/bin/terminator' \\
-        '--start=xhost +'
+        '--start=\$EXEC'
 " ubuntu
 IS_XPRA_STARTER
 
@@ -269,6 +347,7 @@ Description=xpra-start
 [Service]
 Type=oneshot
 PassEnvironment=PASS
+PassEnvironment=ENVIRONMENT
 ExecStart=/usr/local/bin/xpra-exec.sh
 StandardOutput=tty
 StandardError=tty
@@ -301,6 +380,68 @@ UNIT_TARGETS="
 "
 for unit in $(find ${UNIT_TARGETS} 2> /dev/null); do
 	systemctl mask "$(basename "${unit}")" || true
+done
+
+### other masks
+MASK="
+    anacron.service
+    anacron.timer
+    apt-daily-upgrade.timer
+    apt-daily.timer
+    avahi-daemon.service
+    cryptsetup.target
+    cups.path
+    cups.service
+    dpkg-db-backup.timer
+    e2scrub_all.timer
+    e2scrub_reap.service
+    getty.target
+    integritysetup.target
+    ldconfig.service
+    local-fs-pre.target
+    local-fs.target
+    man-db.timer
+    modprobe@dm_mod.service
+    modprobe@drm.service
+    modprobe@efi_pstore.service
+    modprobe@loop.service
+    motd-news.timer
+    network-online.target
+    network.target
+    nss-lookup.target
+    paths.target
+    plymouth-quit-wait.service
+    plymouth-quit.service
+    plymouth-read-write.service
+    remote-fs.target
+    rtkit-daemon.service
+    rtkit-daemon.target
+    slices.target
+    sockets.target
+    swap.target
+    system-modprobe.slice
+    systemd-ask-password-console.path
+    systemd-ask-password-wall.path
+    systemd-journal-catalog-update.service
+    systemd-journal-flush.service
+    systemd-modules-load.service
+    systemd-remount-fs.service
+    systemd-resolved.service
+    systemd-sysctl.service
+    systemd-sysusers.service
+    systemd-update-done.service
+    time-set.target
+    timers.target
+    udisks2.service
+    upower.service
+    upower.target
+    veritysetup.target
+    wpa_supplicant.service
+"
+
+for unit in ${MASK}; do
+	systemctl disable ${unit} || true
+	systemctl mask ${unit} || true
 done
 
 EOF
