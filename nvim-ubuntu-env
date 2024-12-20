@@ -1,0 +1,139 @@
+#!/bin/bash
+PWD_SUFFIX="$(basename "$(realpath "$PWD")")-$(realpath "$PWD" | sha1sum | cut -c1-12)"
+docker ps -a --format '{{.Names}}' | grep -w "nvim-env-$PWD_SUFFIX" > /dev/null 2>&1 && \
+    docker start nvim-env-$PWD_SUFFIX && \
+    docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0 && exit 0
+if [[ ${1} = "--dind" ]] || [[ -e ./.dind ]] ; then
+    socket_mount_string="-v /var/run/docker.sock:/var/run/docker.sock:Z --env DOCKER_HOST=unix:///var/run/docker.sock"
+    touch ./.dind
+fi
+(
+cat <<-IS_DOCKERFILE
+FROM ubuntu:24.04
+
+ENV ASTRONVIM_DEPS='https://github.com/AstroNvim/docs/blob/4f5a88e74de2f6797612e3c8c227ca4cb04c9386/src/content/docs/index.mdx?plain=1#L25'
+
+SHELL [ "/bin/bash" , "-ec" ]
+
+RUN <<EOF
+export DEBIAN_FRONTEND=noninteractive
+echo 'export LC_ALL=pt_BR.UTF-8' >> /etc/profile.d/locale.sh
+echo 'export LANG=pt_BR.UTF-8' >> /etc/profile.d/locale.sh
+echo 'LANG=pt_BR.UTF-8' >> /etc/locale.conf
+apt-get update
+apt-get install -y locales tzdata
+ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+dpkg-reconfigure -fnoninteractive tzdata
+echo -e 'pt_BR.UTF-8 UTF-8\nen_US.UTF-8 UTF-8' > /etc/locale.gen
+locale-gen
+EOF
+
+ENV LANG='pt_BR.UTF-8'
+ENV LANGUAGE='pt_BR:en'
+ENV LC_ALL='pt_BR.UTF-8'
+
+RUN <<EOF
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y \\
+                libarchive-tools \\
+                gcc \\
+                build-essential \\
+                python3-full \\
+                python3-venv \\
+                python3-virtualenv \\
+                gdu \\
+                git \\
+                bash \\
+                zsh \\
+                neovim \\
+                tmux \\
+                curl \\
+                jq \\
+                zsh
+chsh -s /bin/zsh
+EOF
+
+#RUN <<EOF
+#ln -sf /usr/bin/nvim /usr/bin/vi
+#ln -sf /usr/bin/nvim /usr/bin/vim
+#EOF
+
+RUN <<EOF
+mkdir -pv /root/.config/tmux
+mkdir -pv /root/.local/bin
+curl -L https://gitlab.com/vmath3us/devops-userspace/-/raw/main/bare-metal-tmux.conf -o /root/.config/tmux/tmux.conf
+sed -i 's/white/colour202/g' /root/.config/tmux/tmux.conf
+curl -fsL https://gitlab.com/vmath3us/devops-userspace/-/raw/main/sh-provisioning.sh | MINIMAL_PROVISIONED=1 PROFILE=shell bash || true
+EOF
+
+RUN <<EOF
+git clone --depth 1 https://github.com/AstroNvim/template ~/.config/nvim
+EOF
+
+
+RUN <<EOF
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source /root/.nvm/nvm.sh
+nvm install 23
+node -v
+npm -v
+EOF
+
+RUN <<EOF
+
+mkdir -pv /.extract_static_releases 
+LATEST_EZA_URL=\$(curl https://api.github.com/repos/eza-community/eza/releases/latest | jq -r '.assets[] | select(.name | test("x86_64-unknown-linux-musl.tar")) | .browser_download_url')
+curl -L \$LATEST_EZA_URL | bsdtar -C /.extract_static_releases -zxf -
+
+LATEST_ZOXIDE_URL=\$(curl https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest | jq -r '.assets[] | select(.name | test("x86_64-unknown-linux-musl.tar")) | .browser_download_url')
+curl -L \$LATEST_ZOXIDE_URL | bsdtar -C /.extract_static_releases -zxf -
+
+LATEST_BAT_URL=\$(curl https://api.github.com/repos/sharkdp/bat/releases/latest | jq -r '.assets[] | select(.name | test("x86_64-unknown-linux-musl.tar")) | .browser_download_url')
+curl -L \$LATEST_BAT_URL | bsdtar -C /.extract_static_releases --strip-components=1 -zxf -
+
+LATEST_YAZI_URL=\$(curl https://api.github.com/repos/sxyazi/yazi/releases/latest | jq -r '.assets[] | select(.name | test("x86_64-unknown-linux-musl.zip")) | .browser_download_url')
+curl -L \$LATEST_YAZI_URL | bsdtar -C /.extract_static_releases --strip-components=1  -zxf -
+
+LATEST_FD_URL=\$(curl https://api.github.com/repos/sharkdp/fd/releases/latest | jq -r '.assets[] | select(.name | test("x86_64-unknown-linux-musl.tar")) | .browser_download_url')
+curl -L \$LATEST_FD_URL | bsdtar -C /.extract_static_releases --strip-components=1  -zxf - 
+
+LATEST_RG_URL=\$(curl https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | jq -r '.assets[] | select(.name | test("x86_64-unknown-linux-musl.tar")) | .browser_download_url')
+curl -L \$LATEST_RG_URL | bsdtar -C /.extract_static_releases --strip-components=1  -zxf - 
+
+
+for i in eza zoxide bat yazi fd rg ; do
+    install -m755 /.extract_static_releases/\$i /root/.local/bin/\$i
+done
+ls -lha /root/.local/bin
+
+rm -rf /.extract_static_releases
+EOF
+
+RUN <<EOF
+curl -fsSL get.docker.com | bash
+EOF
+
+ENV TERM='xterm-256color'
+ENV PATH="\${PATH}:/root/.local/bin"
+
+VOLUME /root
+
+CMD [ "-c" , "sleep infinity" ]
+
+ENTRYPOINT [ "/bin/bash" ]
+IS_DOCKERFILE
+)| docker build - -t nvim-ubuntu:latest --progress=plain &&
+docker history --format=json --no-trunc docker.io/library/nvim-ubuntu:latest >> ./.docker_image_info-$(date +%Y-%m-%d--%H-%M-%S).json &&
+cp $(realpath ${0}) ./.docker_env-$(date +%Y-%m-%d--%H-%M-%S).sh &&
+eval "docker run \
+    -d \
+    --name nvim-env-$PWD_SUFFIX \
+    --net host \
+    --privileged \
+    -v nvim-env-$PWD_SUFFIX-root:/root \
+    -v $(realpath $(pwd)):$(realpath $(pwd)):Z \
+    -w $(realpath $(pwd)) \
+    ${socket_mount_string} \
+    nvim-ubuntu:latest" && 
+docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0
