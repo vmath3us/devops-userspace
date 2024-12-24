@@ -5,6 +5,24 @@ set -e
 
 if [ $(whoami) != "root" ] ; then exit 1 ; fi
 
+BINARIES_DIR='/usr/local/bin'
+
+PLUGINS_DIR='/root/.docker/cli-plugins'
+
+if [[ -e "${BINARIES_DIR}/docker/dockerd" ]] ; then
+echo "
+update:
+
+docker run \\
+    -v /root/.docker/cli-plugins:/plugins \\
+    -v /usr/local/bin/docker:/hostbin \\
+    -w /hostbin \\
+    --entrypoint sh docker -c 'for i in * ; do cp -v /usr/local/bin/\$i ./\$i ; done ; cp -v /usr/local/libexec/docker/cli-plugins/* /plugins/.'
+kill -s SIGTERM \$(cat /var/run/docker.pid)
+"
+exit 0
+fi
+
 LATEST_DOCKER=$(curl -L https://api.github.com/repos/moby/moby/releases/latest | awk -F'tag/' '/html_url/ {gsub(/v/, "", $2); print $2}' | awk -F'"' '{print $1}')
 ## https://docs.docker.com/engine/install/binaries
 LATEST_DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-"${LATEST_DOCKER}".tgz"
