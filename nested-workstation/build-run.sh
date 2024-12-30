@@ -17,30 +17,39 @@ docker build . \
             --build-arg UBUNTU_IMAGE_DIGEST="${UBUNTU_IMAGE_DIGEST}" \
             --build-arg DOCKER_IMAGE_DIGEST="${DOCKER_IMAGE_DIGEST}" \
             --build-arg INCLUDE_EXTRAS="${INCLUDE_EXTRAS}" \
-            --build-arg ENVIRONMENT="${ENVIRONMENT}"
-
+            --build-arg ENVIRONMENT="${ENVIRONMENT}" \
+            --build-arg FLATHUB_PRELOAD="${FLATHUB_PRELOAD}" \
+            --build-arg FLATHUB_PACKAGES="${FLATHUB_PACKAGES}"
 
 #############---run
 if [[ $DOCKER_MODE = "nested" ]] ; then
-    export DOCKER_MODE_STRING=" -p 127.0.0.1:15000:15000 \
-                                --privileged \
-                                -v docker-workstation-persistence-"${ENVIRONMENT}":/var/lib/docker:Z"
+  export DOCKER_MODE_STRING="
+    --env DOCKER_MODE='nested' \
+    -p 127.0.0.1:15000:15000 \
+    --privileged \
+    -v docker-workstation-persistence-"${ENVIRONMENT}":/var/lib/docker:Z"
 elif [[ $DOCKER_MODE = "socket" ]] ; then
-    export DOCKER_MODE_STRING=" --net host \
-                                --privileged \
-                                -v /var/run/docker.sock:/docker.sock:Z"
+  export DOCKER_MODE_STRING="
+    --env DOCKER_MODE='socket' \
+    --net host \
+    --privileged \
+    -v /var/run/docker.sock:/var/run/docker.sock:Z"
 else
     exit 1
+fi
+if [[ $AUDIO_HOST = "true" ]]  ; then
+  export AUDIO_HOST_STRING="
+    -v /run/user/1000/pulse:/run/user/1000/pulse \
+    -e PULSE_SERVER=unix:/run/user/1000/pulse/native"
 fi
 eval "docker run \
             -d \
             --shm-size=1G \
             --env PASS="${PASS}" \
             --env ENVIRONMENT="${ENVIRONMENT}" \
-            --env XDG_CURRENT_DESKTOP="${ENVIRONMENT}" \
-            --env XDG_SESSION_DESKTOP="${ENVIRONMENT}" \
             -v home-docker-workstation-docker-"${ENVIRONMENT}":/home/ubuntu:Z \
             "${DOCKER_MODE_STRING}" \
+            "${AUDIO_HOST_STRING}" \
             --name docker-workstation-"${ENVIRONMENT}" \
             --hostname docker-workstation-"${ENVIRONMENT}" \
             docker-workstation-includeextras-"${INCLUDE_EXTRAS}"-interfacemode-"${ENVIRONMENT}"

@@ -49,6 +49,7 @@ apt-get install -y \
             jq \
             less \
             libarchive-tools \
+            libpulse0 \
             python3-pip \
             python3-uinput \
             python3-watchdog \
@@ -64,6 +65,7 @@ apt-get install -y \
             xdg-desktop-portal-gtk \
             xsel \
             xvfb \
+            xz-utils \
             --no-install-recommends
 
 usermod -aG sudo ubuntu
@@ -222,19 +224,12 @@ ARG DOCKER_IMAGE_DIGEST
 
 LABEL docker.image.get.bins="$DOCKER_IMAGE_DIGEST"
 
-COPY --from=docker-bins --chmod=755 /usr/local/bin/containerd               /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/containerd-shim-runc-v2  /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/ctr                      /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/docker                   /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/docker-init              /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/docker-proxy             /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/dockerd                  /usr/local/bin/.
-COPY --from=docker-bins --chmod=755 /usr/local/bin/runc                     /usr/local/bin/.
+COPY --from=docker-bins --chmod=755 /usr/local/bin/. /usr/local/bin/.
 COPY --from=docker-bins --chmod=755 /usr/local/libexec/docker/cli-plugins/. /usr/local/libexec/docker/cli-plugins/.
 USER root
 RUN <<EOF
 
-groupadd -g 990 docker
+groupadd -g 90990 docker
 
 usermod -aG docker ubuntu
 
@@ -254,11 +249,9 @@ RUN <<EOF
 cd /home/ubuntu
 mkdir -pv ./.local/bin
 mkdir -pv ./.local/share/fonts
-mkdir -pv ./.local/share/flatpak
 mkdir -pv ./.config/tmux
 mkdir -pv ./.config/terminator
 
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo --user
 
 curl -L https://github.com/ryanoasis/nerd-fonts/raw/refs/heads/master/patched-fonts/IBMPlexMono/Mono/BlexMonoNerdFont-Bold.ttf -o ~/.local/share/fonts/blex-mono-nerd-font-bold.ttf
 fc-cache -f
@@ -289,6 +282,14 @@ cat > ./.config/terminator/config <<-IS_TERMINATOR_CONF
       parent = window0
 [plugins]
 IS_TERMINATOR_CONF
+
+###### history -a grant immeediately save bash_history (docker kill/docker rm > recreate)
+sed -i \
+      -e 's/shopt -s histappend/shopt -s histappend\nPROMPT_COMMAND="history -a"/' \
+      -e 's/HISTSIZE.*/HISTSIZE=1000000/' \
+      -e 's/HISTFILESIZE.*/HISTFILESIZE=2000000\nHISTTIMEFORMAT="+%Y-%m-%d--%H-%M-%S "/' \
+      /home/ubuntu/.bashrc
+
 EOF
 ################----------------> home setup
 #
@@ -309,20 +310,47 @@ EOF
 #
 #
 #
+################----------------> flatpak pre-install on user volume (run as root/su -c, depends system dbus)
+ARG FLATHUB_PRELOAD
+ARG FLATHUB_PACKAGES
+
+RUN <<EOF
+if [[ $FLATHUB_PRELOAD = "true" ]] ; then
+  dbus-daemon --system --fork 2>/dev/null
+  FLATHUB_PRELOAD_COMMAND="
+      mkdir -pv /home/ubuntu/.local/share/flatpak
+      FLATPAK_SYSTEM_HELPER_ON_SESSION='/run/dbus/system_bus_socket'
+      flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo --user
+      flatpak install -y ${FLATHUB_PACKAGES}
+      "
+  su -c "eval \"${FLATHUB_PRELOAD_COMMAND}\"" ubuntu
+  rm -rv /run/dbus/*
+  rm -rv /run/dbus/.*
+  exit 0
+else
+  true
+fi
+EOF
+################----------------> flatpak pre-install on user volume (run as root/su -c, depends system dbus)
+#
+#
+#
 ################----------------> entrypoint
 RUN <<EOF
 cat > /usr/local/bin/xpra-exec.sh <<-IS_XPRA_STARTER
 #!/bin/bash
+rm -rv /run/dbus/* || true
+rm -rv /run/dbus/.* || true
 dbus-daemon --system --fork 2>/dev/null
-
-if [[ ! -e /docker.sock ]] ; then
-    setsid --fork bash -c "dockerd >> /dev/ttydocker 2>> /dev/ttydocker"
-    DOCKER_HOST='unix:///var/run/docker.sock'
+DOCKER_MODE="\${DOCKER_MODE}"
+if [[ \$DOCKER_MODE = "nested" ]] ; then
+    setsid --fork bash -c "rm -v /run/docker.pid || true ; rm /run/docker/containerd/containerd.pid || true ; /usr/local/bin/dockerd >>/dev/ttydocker 2>>/dev/ttydocker"
     NET='0.0.0.0'
-else
-    chown root:docker /docker.sock
-    DOCKER_HOST='unix:///docker.sock'
+elif [[ \$DOCKER_MODE = "socket" ]] ; then
+    chown root:docker /var/run/docker.sock
     NET='127.0.0.1'
+else
+    true
 fi
 PASS="\${PASS}"
 if [ -z \$PASS ] ; then
@@ -355,10 +383,7 @@ esac
 
 
 runuser -P -l ubuntu -c "
-    DOCKER_HOST='\${DOCKER_HOST}' \\
     FLATPAK_SYSTEM_HELPER_ON_SESSION='/run/dbus/system_bus_socket' \\
-    XDG_CURRENT_DESKTOP='\${ENVIRONMENT}' \\
-    XDG_SESSION_DESKTOP='\${ENVIRONMENT}' \\
     XDG_RUNTIME_DIR='/run/user/1000' \\
     DISPLAY=':15000' \\
     XCURSOR_SIZE='50' \\
