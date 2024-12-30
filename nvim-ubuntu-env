@@ -1,14 +1,22 @@
 #!/bin/bash
 PWD_SUFFIX="$(basename "$(realpath "$PWD")")-$(realpath "$PWD" | sha1sum | cut -c1-12)"
 docker ps -a --format '{{.Names}}' | grep -w "nvim-env-$PWD_SUFFIX" > /dev/null 2>&1 && \
-    docker start nvim-env-$PWD_SUFFIX && \
-    docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0 && exit 0
-if [[ ${1} = "--dind" ]] || [[ -e ./.dind ]] ; then
-    socket_mount_string="-v /var/run/docker.sock:/var/run/docker.sock:Z --env DOCKER_HOST=unix:///var/run/docker.sock"
-    touch ./.dind
+    docker start nvim-env-$PWD_SUFFIX \
+    && \
+    docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0 \
+    && \
+    exit 0
+if  [[ ${1} = "--dindn" ]] || [[ -e ./.dindn ]] ; then
+    docker_mode_string="--privileged --env DIND='nested' -v nvim-env-$PWD_SUFFIX-docker:/var/lib/docker:Z"
+    echo "$(date +%Y-%m-%d--%H-%M-%S)" > ./.dindn
+elif  [[ ${1} = "--dinds" ]] || [[ -e ./.dinds ]] || [[ -z ${1} ]] ; then
+    docker_mode_string="--net host -v /var/run/docker.sock:/var/run/docker.sock:Z --env DOCKER_HOST='unix:///var/run/docker.sock' --env DIND='socket'"
+    touch ./.dinds
+    echo "$(date +%Y-%m-%d--%H-%M-%S)" > ./.dinds
 fi
 (
 cat <<-IS_DOCKERFILE
+FROM docker:latest AS docker-bins
 FROM ubuntu:24.04
 
 ENV ASTRONVIM_DEPS='https://github.com/AstroNvim/docs/blob/4f5a88e74de2f6797612e3c8c227ca4cb04c9386/src/content/docs/index.mdx?plain=1#L25'
@@ -36,6 +44,8 @@ RUN <<EOF
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y \\
+                iptables \\
+                iproute2 \\
                 libarchive-tools \\
                 gcc \\
                 build-essential \\
@@ -103,37 +113,49 @@ curl -L \$LATEST_RG_URL | bsdtar -C /.extract_static_releases --strip-components
 
 
 for i in eza zoxide bat yazi fd rg ; do
-    install -m755 /.extract_static_releases/\$i /root/.local/bin/\$i
+    install -m755 /.extract_static_releases/\$i /usr/local/bin/\$i
 done
-ls -lha /root/.local/bin
+ls -lha /usr/local/bin
 
 rm -rf /.extract_static_releases
 EOF
 
+COPY --from=docker-bins /usr/local/bin/. /usr/local/bin/.
+COPY --from=docker-bins /usr/local/libexec/docker/. /usr/local/libexec/docker/.
+
 RUN <<EOF
-curl -fsSL get.docker.com | bash
+cat > /entrypoint.sh <<-ENTRYPOINT
+#!/bin/bash
+set -x
+if [[ \\\$DIND = "nested" ]] ; then
+    setsid --fork bash -c "rm -v /run/docker.pid || true ; rm /run/docker/containerd/containerd.pid || true ; /usr/local/bin/dockerd >>/dev/ttydocker 2>>/dev/ttydocker"
+fi
+sleep infinity
+ENTRYPOINT
+
+chmod +x /entrypoint.sh
 EOF
 
 ENV TERM='xterm-256color'
-ENV PATH="\${PATH}:/root/.local/bin"
 
 VOLUME /root
 
-CMD [ "-c" , "sleep infinity" ]
-
 ENTRYPOINT [ "/bin/bash" ]
+
+CMD [ "/entrypoint.sh" ]
 IS_DOCKERFILE
 )| docker build - -t nvim-ubuntu:latest --progress=plain &&
-docker history --format=json --no-trunc docker.io/library/nvim-ubuntu:latest >> ./.docker_image_info-$(date +%Y-%m-%d--%H-%M-%S).json &&
-cp $(realpath ${0}) ./.docker_env-$(date +%Y-%m-%d--%H-%M-%S).sh &&
+cat $(realpath ${0}) > ./.docker_env.sh &&
+echo "#--------------------$(date +%Y-%m-%d--%H-%M-%S)" >> ./.docker_env.sh &&
+echo "{\"nvim-ubuntu-env\" : \"$(date +%Y-%m-%d--%H-%M-%S)\"}" > ./.docker_image_history.json &&
+docker history --format=json --no-trunc docker.io/library/nvim-ubuntu:latest | tac >> ./.docker_image_history.json &&
 eval "docker run \
     -d \
     --name nvim-env-$PWD_SUFFIX \
-    --net host \
-    --privileged \
+    --hostname nvim-env-$PWD_SUFFIX \
     -v nvim-env-$PWD_SUFFIX-root:/root \
     -v $(realpath $(pwd)):$(realpath $(pwd)):Z \
     -w $(realpath $(pwd)) \
-    ${socket_mount_string} \
+    ${docker_mode_string} \
     nvim-ubuntu:latest" && 
 docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0
