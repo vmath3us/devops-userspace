@@ -40,6 +40,7 @@ if [ ! -e /etc/ssh/ssh_host_ed25519_key.pub ] ; then ssh-keygen -A ; fi
 set -o vi
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
+bindkey -M vicmd v edit-command-line
 #####################################################################################
 #
 #			alias session
