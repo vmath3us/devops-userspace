@@ -124,6 +124,17 @@ EOF
 COPY --from=docker-bins /usr/local/bin/. /usr/local/bin/.
 COPY --from=docker-bins /usr/local/libexec/docker/. /usr/local/libexec/docker/.
 
+#RUN <<EOF
+#VERSION_GO=\$(curl -s 'https://go.dev/dl/?mode=json' | jq -r '.[0].version')
+#cd /opt
+#curl -o go.tar.gz -L https://go.dev/dl/\$VERSION_GO.linux-amd64.tar.gz
+#tar -xf go.tar.gz
+#mv ./go ./\$VERSION_GO
+#ln -s /opt/\$VERSION_GO/bin/go /usr/local/bin/go
+#rm -r /opt/go.tar.gz
+#go version
+#EOF
+
 RUN <<EOF
 cat > /entrypoint.sh <<-ENTRYPOINT
 #!/bin/bash
