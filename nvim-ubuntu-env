@@ -124,6 +124,11 @@ EOF
 COPY --from=docker-bins /usr/local/bin/. /usr/local/bin/.
 COPY --from=docker-bins /usr/local/libexec/docker/. /usr/local/libexec/docker/.
 
+RUN <<EOF
+groupadd -g 90900 docker
+usermod -aG docker ubuntu
+EOF
+
 #RUN <<EOF
 #VERSION_GO=\$(curl -s 'https://go.dev/dl/?mode=json' | jq -r '.[0].version')
 #cd /opt
