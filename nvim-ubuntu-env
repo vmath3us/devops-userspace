@@ -1,20 +1,21 @@
 #!/bin/bash
 PWD_SUFFIX="$(basename "$(realpath "$PWD")")-$(realpath "$PWD" | sha1sum | cut -c1-12)"
-docker ps -a --format '{{.Names}}' | grep -w "nvim-env-$PWD_SUFFIX" > /dev/null 2>&1 && \
-    docker start nvim-env-$PWD_SUFFIX \
+IMAGE_NAME="nvim-env-$PWD_SUFFIX"
+docker ps -a --format '{{.Names}}' | grep -w "${IMAGE_NAME}" > /dev/null 2>&1 && \
+    docker start "${IMAGE_NAME}" \
     && \
-    docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0 \
+    docker exec -it "${IMAGE_NAME}" tmux -2 -u new-session -A -s 0 \
     && \
     exit 0
 if  [[ ${1} = "--dindn" ]] || [[ -e ./.dindn ]] ; then
-    docker_mode_string="--privileged --env DIND='nested' -v nvim-env-$PWD_SUFFIX-docker:/var/lib/docker:Z"
+    docker_mode_string="--privileged --env DIND='nested' -v "${IMAGE_NAME}"-docker:/var/lib/docker:Z"
     echo "$(date +%Y-%m-%d--%H-%M-%S)" > ./.dindn
 elif  [[ ${1} = "--dinds" ]] || [[ -e ./.dinds ]] || [[ -z ${1} ]] ; then
     docker_mode_string="--net host -v /var/run/docker.sock:/var/run/docker.sock:Z --env DOCKER_HOST='unix:///var/run/docker.sock' --env DIND='socket'"
     touch ./.dinds
     echo "$(date +%Y-%m-%d--%H-%M-%S)" > ./.dinds
 fi
-docker image inspect nvim-ubuntu:latest >>/dev/null ||
+docker image inspect "${IMAGE_NAME}" >>/dev/null ||
 (
 cat <<-IS_DOCKERFILE
 FROM docker:latest AS docker-bins
@@ -161,18 +162,18 @@ ENTRYPOINT [ "/bin/bash" ]
 
 CMD [ "/entrypoint.sh" ]
 IS_DOCKERFILE
-)| docker build - -t nvim-ubuntu:latest --progress=plain &&
+)| docker build - -t "${IMAGE_NAME}" --progress=plain &&
 cat $(realpath ${0}) > ./.docker_env.sh &&
 echo "#--------------------$(date +%Y-%m-%d--%H-%M-%S)" >> ./.docker_env.sh &&
-echo "{\"nvim-ubuntu-env\" : \"$(date +%Y-%m-%d--%H-%M-%S)\"}" > ./.docker_image_history.json &&
-docker history --format=json --no-trunc docker.io/library/nvim-ubuntu:latest | tac >> ./.docker_image_history.json &&
+echo "{\""${IMAGE_NAME}"\": \"$(date +%Y-%m-%d--%H-%M-%S)\"}" > ./.docker_image_history.json &&
+docker history --format=json --no-trunc docker.io/library/"${IMAGE_NAME}" | tac >> ./.docker_image_history.json &&
 eval "docker run \
     -d \
-    --name nvim-env-$PWD_SUFFIX \
-    --hostname nvim-env-$PWD_SUFFIX \
-    -v nvim-env-$PWD_SUFFIX-root:/root \
+    --name "${IMAGE_NAME}" \
+    --hostname "${IMAGE_NAME}" \
+    -v "${IMAGE_NAME}"-root:/root \
     -v $(realpath $(pwd)):$(realpath $(pwd)):Z \
     -w $(realpath $(pwd)) \
     ${docker_mode_string} \
-    nvim-ubuntu:latest" && 
-docker exec -it nvim-env-$PWD_SUFFIX tmux -2 -u new-session -A -s 0
+    "${IMAGE_NAME}"" &&
+docker exec -it "${IMAGE_NAME}" tmux -2 -u new-session -A -s 0
