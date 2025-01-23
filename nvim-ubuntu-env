@@ -1,6 +1,8 @@
 #!/bin/bash
 PWD_SUFFIX="$(basename "$(realpath "$PWD")")-$(realpath "$PWD" | sha1sum | cut -c1-12)"
 IMAGE_NAME="nvim-env-$PWD_SUFFIX"
+cp $(realpath ${0}) ./.docker_env.sh || true
+echo "#--------------------$(date +%Y-%m-%d--%H-%M-%S)" >> ./.docker_env.sh &&
 docker ps -a --format '{{.Names}}' | grep -w "${IMAGE_NAME}" > /dev/null 2>&1 && \
     docker start "${IMAGE_NAME}" \
     && \
@@ -163,8 +165,6 @@ ENTRYPOINT [ "/bin/bash" ]
 CMD [ "/entrypoint.sh" ]
 IS_DOCKERFILE
 )| docker build - -t "${IMAGE_NAME}" --progress=plain &&
-cat $(realpath ${0}) > ./.docker_env.sh &&
-echo "#--------------------$(date +%Y-%m-%d--%H-%M-%S)" >> ./.docker_env.sh &&
 echo "{\""${IMAGE_NAME}"\": \"$(date +%Y-%m-%d--%H-%M-%S)\"}" > ./.docker_image_history.json &&
 docker history --format=json --no-trunc docker.io/library/"${IMAGE_NAME}" | tac >> ./.docker_image_history.json &&
 eval "docker run \
