@@ -78,7 +78,16 @@ wget -q -O- https://xpra.org/gpg.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/xp
 echo 'deb [signed-by=/etc/apt/trusted.gpg.d/xpra.gpg arch=amd64] https://xpra.org noble main' > /etc/apt/sources.list.d/xpra.list
 
 apt-get update
-apt-get install -y xpra xpra-x11 xpra-html5 --no-install-recommends
+apt-get install -y xpra=6.2.2-r0-1 \
+                    xpra-client-gtk3=6.2.2-r0-1 \
+                    xpra-client=6.2.2-r0-1 \
+                    xpra-codecs=6.2.2-r0-1 \
+                    xpra-common=6.2.2-r0-1 \
+                    xpra-html5=16.2-r0-1 \
+                    xpra-server=6.2.2-r0-1 \
+                    xpra-x11=6.2.2-r0-1 \
+                    xpra=6.2.2-r0-1 \
+                    --no-install-recommends
 EOF
 ################----------------> xpra
 #
