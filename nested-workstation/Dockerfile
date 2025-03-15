@@ -348,12 +348,27 @@ EOF
 RUN <<EOF
 cat > /usr/local/bin/xpra-exec.sh <<-IS_XPRA_STARTER
 #!/bin/bash
-rm -rv /run/dbus/* || true
-rm -rv /run/dbus/.* || true
+grace_stop() {
+  set -x
+  echo "Recebido SIGTERM! Encerrando..."
+  su -c "kill -s SIGTERM \$(cat /run/user/1000/xpra/15000/server.pid)" ubuntu
+  if [[ \$DOCKER_MODE = "nested" ]] ; then
+    kill -s SIGTERM \$(cat /run/docker.pid)
+  fi
+  kill -s SIGTERM \$(cat /run/dbus/pid)
+  rm -rv /run/dbus/* || true
+  rm -rv /run/dbus/.* || true
+  rm -r /tmp/* || true
+  rm -r /tmp/.* || true
+  exit 0
+}
+
+trap 'grace_stop' SIGTERM
+
 dbus-daemon --system --fork 2>/dev/null
 DOCKER_MODE="\${DOCKER_MODE}"
 if [[ \$DOCKER_MODE = "nested" ]] ; then
-    setsid --fork bash -c "rm -v /run/docker.pid || true ; rm /run/docker/containerd/containerd.pid || true ; /usr/local/bin/dockerd >>/dev/ttydocker 2>>/dev/ttydocker"
+    setsid --fork bash -c "DOCKER_HOST='unix:///var/run/docker.sock' DOCKER_TLS_CERTDIR='' TINI_SUBREAPER=1 DOCKER_DRIVER='overlay2' /usr/local/bin/docker-entrypoint.sh dockerd --tls=false --experimental >>/dev/stdout 2>>/dev/stdout"
     NET='0.0.0.0'
 elif [[ \$DOCKER_MODE = "socket" ]] ; then
     chown root:docker /var/run/docker.sock
@@ -391,7 +406,7 @@ case \$ENVIRONMENT in
 esac
 
 
-runuser -P -l ubuntu -c "
+setsid --fork runuser -P -l ubuntu -c "
     FLATPAK_SYSTEM_HELPER_ON_SESSION='/run/dbus/system_bus_socket' \\
     XDG_RUNTIME_DIR='/run/user/1000' \\
     DISPLAY=':15000' \\
@@ -409,6 +424,8 @@ runuser -P -l ubuntu -c "
         '--start-on-connect=/usr/bin/terminator' \\
         '--start=\${EXEC}'
 " 
+sleep infinity &
+wait
 IS_XPRA_STARTER
 
 chmod +x /usr/local/bin/xpra-exec.sh
